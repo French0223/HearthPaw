@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.main.AddPetActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:title="Register Stray Pet"
+            app:titleTextColor="@android:color/white" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Photo Preview Area -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_photo"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="8dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/material_dynamic_neutral40">
+
+                <ImageView
+                    android:id="@+id/iv_pet_photo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@android:drawable/ic_menu_camera" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_take_photo"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:layout_marginBottom="8dp"
+                    android:text="Capture Photo"
+                    app:icon="@android:drawable/ic_menu_camera" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Pet Name Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_name"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="Pet Name (if known/nicknamed)">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_pet_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapWords" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Description Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_description"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="Description (Color, Breed, Condition)">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_pet_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:inputType="textMultiLine"
+                    android:lines="3" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Phone Number Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_phone"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:hint="Rescuer Contact Number">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_pet_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Submit Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_save_pet"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="Register Rescue"
+                android:textSize="16sp"
+                app:cornerRadius="8dp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
