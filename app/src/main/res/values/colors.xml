@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
+    <color name="black">#FF1F1B24</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="hearthpaw_primary">#FFEA8C9F</color>
+    <color name="hearthpaw_on_primary">#FFFFFFFF</color>
+    <color name="hearthpaw_primary_container">#FFFFE2E8</color>
+    <color name="hearthpaw_on_primary_container">#FF4A2430</color>
+    <color name="hearthpaw_secondary">#FF7CCFB5</color>
+    <color name="hearthpaw_on_secondary">#FF0F2A25</color>
+    <color name="hearthpaw_secondary_container">#FFE7F7F0</color>
+    <color name="hearthpaw_on_secondary_container">#FF12382F</color>
+    <color name="hearthpaw_tertiary">#FFF0B76B</color>
+    <color name="hearthpaw_surface">#FFFFFBFD</color>
+    <color name="hearthpaw_surface_variant">#FFF4E8EC</color>
+    <color name="hearthpaw_outline">#FFD8B9C1</color>
+    <color name="hearthpaw_background">#FFFFF8FA</color>
+    <color name="hearthpaw_card">#FFFFFDFE</color>
+    <color name="hearthpaw_card_soft">#FFFCEEF2</color>
+    <color name="hearthpaw_text_soft">#FF6B5963</color>
 </resources>

@@ -23,6 +23,10 @@ public class PetViewModel extends AndroidViewModel {
         return allPets;
     }
 
+    public LiveData<Pet> getPetById(int petId) {
+        return repository.getPetById(petId);
+    }
+
     public void insert(Pet pet) {
         repository.insert(pet);
     }

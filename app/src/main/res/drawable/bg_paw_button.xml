@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:gravity="top|center_horizontal">
+        <shape android:shape="oval">
+            <size android:width="14dp" android:height="18dp" />
+            <solid android:color="#FFEA8C9F" />
+        </shape>
+    </item>
+
+    <item android:gravity="top|center_horizontal" android:top="4dp" android:left="18dp">
+        <shape android:shape="oval">
+            <size android:width="12dp" android:height="16dp" />
+            <solid android:color="#FFEA8C9F" />
+        </shape>
+    </item>
+
+    <item android:gravity="top|center_horizontal" android:top="4dp" android:right="18dp">
+        <shape android:shape="oval">
+            <size android:width="12dp" android:height="16dp" />
+            <solid android:color="#FFEA8C9F" />
+        </shape>
+    </item>
+
+    <item android:gravity="top|center_horizontal" android:top="10dp" android:left="38dp">
+        <shape android:shape="oval">
+            <size android:width="11dp" android:height="14dp" />
+            <solid android:color="#FFEA8C9F" />
+        </shape>
+    </item>
+
+    <item android:gravity="top|center_horizontal" android:top="10dp" android:right="38dp">
+        <shape android:shape="oval">
+            <size android:width="11dp" android:height="14dp" />
+            <solid android:color="#FFEA8C9F" />
+        </shape>
+    </item>
+
+    <item android:gravity="bottom|center_horizontal" android:bottom="6dp">
+        <shape android:shape="oval">
+            <size android:width="42dp" android:height="30dp" />
+            <solid android:color="#FFEA8C9F" />
+        </shape>
+    </item>
+</layer-list>

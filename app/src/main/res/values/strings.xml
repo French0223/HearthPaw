@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">HearthPaw</string>
+    <string name="app_tagline">Little paws, big love</string>
+    <string name="main_empty_message">No rescues yet. Tap the paw to add one.</string>
+    <string name="main_fab_description">Add a new rescue</string>
+    <string name="add_pet_title">Register a New Rescue</string>
+    <string name="add_pet_subtitle">Capture their photo, write a few details, and keep them safe.</string>
+    <string name="add_pet_name_hint">Pet Name (if known / nickname)</string>
+    <string name="add_pet_description_hint">Description (color, breed, condition)</string>
+    <string name="add_pet_phone_hint">Rescuer Contact Number</string>
+    <string name="capture_photo">Capture Photo</string>
+    <string name="register_rescue">Register Rescue</string>
+    <string name="detail_title">Pet Details</string>
+    <string name="detail_call_button">Call Guardian</string>
+    <string name="detail_description_label">Description</string>
+    <string name="detail_contact_label">Contact Number</string>
+    <string name="pet_photo_description">Pet photo</string>
+    <string name="cute_status_found">Found</string>
+    <string name="cute_status_owner">Searching for Owner</string>
+    <string name="cute_status_adoptable">Adoptable</string>
 </resources>

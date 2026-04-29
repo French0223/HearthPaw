@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The "Paw Print" Design -->
+
+    <!-- 1. Main Pad (Large Bottom Part) -->
+    <!-- We center this so the "+" icon in the ImageButton naturally lands in the middle of it -->
+    <item
+        android:width="52dp"
+        android:height="42dp"
+        android:gravity="center">
+        <shape android:shape="oval">
+            <solid android:color="@color/hearthpaw_primary" />
+        </shape>
+    </item>
+
+    <!-- 2. The Toes (4 smaller ovals arranged in an arc above the pad) -->
+    <!-- Far Left Toe -->
+    <item
+        android:width="14dp"
+        android:height="22dp"
+        android:gravity="center"
+        android:bottom="34dp"
+        android:right="42dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/hearthpaw_primary" />
+        </shape>
+    </item>
+
+    <!-- Middle Left Toe -->
+    <item
+        android:width="16dp"
+        android:height="26dp"
+        android:gravity="center"
+        android:bottom="50dp"
+        android:right="16dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/hearthpaw_primary" />
+        </shape>
+    </item>
+
+    <!-- Middle Right Toe -->
+    <item
+        android:width="16dp"
+        android:height="26dp"
+        android:gravity="center"
+        android:bottom="50dp"
+        android:left="16dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/hearthpaw_primary" />
+        </shape>
+    </item>
+
+    <!-- Far Right Toe -->
+    <item
+        android:width="14dp"
+        android:height="22dp"
+        android:gravity="center"
+        android:bottom="34dp"
+        android:left="42dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/hearthpaw_primary" />
+        </shape>
+    </item>
+</layer-list>

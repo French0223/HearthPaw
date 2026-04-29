@@ -1,7 +1,23 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.HearthPaw" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="colorPrimary">@color/hearthpaw_primary</item>
+        <item name="colorOnPrimary">@color/hearthpaw_on_primary</item>
+        <item name="colorPrimaryContainer">@color/hearthpaw_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/hearthpaw_on_primary_container</item>
+        <item name="colorSecondary">@color/hearthpaw_secondary</item>
+        <item name="colorOnSecondary">@color/hearthpaw_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/hearthpaw_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/hearthpaw_on_secondary_container</item>
+        <item name="colorTertiary">@color/hearthpaw_tertiary</item>
+        <item name="colorSurface">@color/hearthpaw_surface</item>
+        <item name="colorSurfaceVariant">@color/hearthpaw_surface_variant</item>
+        <item name="colorOutline">@color/hearthpaw_outline</item>
+        <item name="android:colorBackground">@color/hearthpaw_background</item>
+        <item name="android:statusBarColor">@color/hearthpaw_primary_container</item>
+        <item name="android:navigationBarColor">@color/hearthpaw_background</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
+
+    <style name="Theme.HearthPaw" parent="Base.Theme.HearthPaw" />
 </resources>

@@ -3,6 +3,8 @@ package com.example.hearthpaw;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,14 +13,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.hearthpaw.ui.main.AddPetActivity;
+import com.example.hearthpaw.ui.adapter.PetAdapter;
+import com.example.hearthpaw.ui.detail.PetDetailActivity;
 import com.example.hearthpaw.ui.viewmodel.PetViewModel;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity {
 
     private PetViewModel petViewModel;
     private RecyclerView recyclerView;
-    private TextView tvEmptyMessage;
+    private LinearLayout llEmptyState;
+    private PetAdapter petAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,11 +31,17 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize Views
         recyclerView = findViewById(R.id.rv_pets);
-        tvEmptyMessage = findViewById(R.id.tv_empty_message);
-        FloatingActionButton fab = findViewById(R.id.fab_add_pet);
+        llEmptyState = findViewById(R.id.ll_empty_state);
+        ImageButton fab = findViewById(R.id.fab_add_pet);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
+        petAdapter = new PetAdapter(pet -> {
+            Intent intent = new Intent(MainActivity.this, PetDetailActivity.class);
+            intent.putExtra(PetDetailActivity.EXTRA_PET_ID, pet.getId());
+            startActivity(intent);
+        });
+        recyclerView.setAdapter(petAdapter);
 
         // Initialize ViewModel
         petViewModel = new ViewModelProvider(this).get(PetViewModel.class);
@@ -39,12 +49,12 @@ public class MainActivity extends AppCompatActivity {
         // Observe the LiveData from ViewModel
         petViewModel.getAllPets().observe(this, pets -> {
             if (pets == null || pets.isEmpty()) {
-                tvEmptyMessage.setVisibility(View.VISIBLE);
+                llEmptyState.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.GONE);
             } else {
-                tvEmptyMessage.setVisibility(View.GONE);
+                llEmptyState.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
-                // TODO: Update RecyclerView Adapter here in the next step
+                petAdapter.submitList(pets);
             }
         });
 

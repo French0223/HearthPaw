@@ -4,19 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_app_gradient"
     tools:context=".ui.main.AddPetActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/hearthpaw_primary_container">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:title="Register Stray Pet"
-            app:titleTextColor="@android:color/white" />
+            android:background="@color/hearthpaw_primary_container"
+            app:title="@string/add_pet_title"
+            app:titleCentered="true"
+            app:titleTextAppearance="@style/TextAppearance.HearthPaw.ToolbarTitle"
+            app:titleTextColor="@color/hearthpaw_on_primary_container"
+            />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -29,22 +34,34 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="18dp"
+            android:paddingTop="10dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:text="Make their rescue page feel warm and safe."
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/hearthpaw_text_soft"
+                android:textSize="14sp" />
 
             <!-- Photo Preview Area -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_photo"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="8dp"
+                android:layout_marginBottom="18dp"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="4dp"
                 app:strokeWidth="1dp"
-                app:strokeColor="@color/material_dynamic_neutral40">
+                app:strokeColor="@color/hearthpaw_outline">
 
                 <ImageView
                     android:id="@+id/iv_pet_photo"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:background="@color/hearthpaw_card_soft"
                     android:scaleType="centerCrop"
                     android:src="@android:drawable/ic_menu_camera" />
 
@@ -54,9 +71,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom|center_horizontal"
-                    android:layout_marginBottom="8dp"
-                    android:text="Capture Photo"
-                    app:icon="@android:drawable/ic_menu_camera" />
+                    android:layout_marginBottom="12dp"
+                    android:minHeight="52dp"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp"
+                    android:text="@string/capture_photo"
+                    android:textColor="@color/hearthpaw_on_primary_container"
+                    app:icon="@android:drawable/ic_menu_camera"
+                    app:iconGravity="textStart"
+                    app:iconTint="@color/hearthpaw_on_primary_container" />
 
             </com.google.android.material.card.MaterialCardView>
 
@@ -66,13 +89,14 @@
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:hint="Pet Name (if known/nicknamed)">
+                android:layout_marginBottom="14dp"
+                android:hint="@string/add_pet_name_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_pet_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
                     android:inputType="textCapWords" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -83,14 +107,15 @@
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:hint="Description (Color, Breed, Condition)">
+                android:layout_marginBottom="14dp"
+                android:hint="@string/add_pet_description_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_pet_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="top"
+                    android:fontFamily="sans-serif-medium"
                     android:inputType="textMultiLine"
                     android:lines="3" />
 
@@ -102,13 +127,14 @@
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:hint="Rescuer Contact Number">
+                android:layout_marginBottom="26dp"
+                android:hint="@string/add_pet_phone_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_pet_phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
                     android:inputType="phone" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -117,10 +143,11 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_save_pet"
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
-                android:text="Register Rescue"
+                android:layout_height="60dp"
+                android:text="@string/register_rescue"
                 android:textSize="16sp"
-                app:cornerRadius="8dp" />
+                android:textColor="@color/hearthpaw_on_primary_container"
+                app:cornerRadius="22dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

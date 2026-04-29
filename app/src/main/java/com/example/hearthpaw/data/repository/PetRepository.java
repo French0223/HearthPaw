@@ -22,6 +22,10 @@ public class PetRepository {
         return allPets;
     }
 
+    public LiveData<Pet> getPetById(int id) {
+        return petDao.getPetById(id);
+    }
+
     public void insert(Pet pet) {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             petDao.insert(pet);
