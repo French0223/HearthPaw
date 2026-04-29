@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Main Pad -->
+    <item
+        android:width="40dp"
+        android:height="32dp"
+        android:gravity="center">
+        <shape android:shape="oval">
+            <solid android:color="@color/hearthpaw_primary" />
+        </shape>
+    </item>
+
+    <!-- Toes -->
+    <item
+        android:width="12dp"
+        android:height="18dp"
+        android:gravity="center"
+        android:bottom="26dp"
+        android:right="32dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/hearthpaw_primary" />
+        </shape>
+    </item>
+
+    <item
+        android:width="14dp"
+        android:height="22dp"
+        android:gravity="center"
+        android:bottom="38dp"
+        android:right="12dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/hearthpaw_primary" />
+        </shape>
+    </item>
+
+    <item
+        android:width="14dp"
+        android:height="22dp"
+        android:gravity="center"
+        android:bottom="38dp"
+        android:left="12dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/hearthpaw_primary" />
+        </shape>
+    </item>
+
+    <item
+        android:width="12dp"
+        android:height="18dp"
+        android:gravity="center"
+        android:bottom="26dp"
+        android:left="32dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/hearthpaw_primary" />
+        </shape>
+    </item>
+</layer-list>
