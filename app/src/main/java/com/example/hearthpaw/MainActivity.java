@@ -2,17 +2,23 @@ package com.example.hearthpaw;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -23,16 +29,27 @@ import com.example.hearthpaw.ui.main.AddPetActivity;
 import com.example.hearthpaw.ui.adapter.PetAdapter;
 import com.example.hearthpaw.ui.detail.PetDetailActivity;
 import com.example.hearthpaw.ui.viewmodel.PetViewModel;
+import com.example.hearthpaw.util.BitmapUtils;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.Task;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -45,15 +62,27 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean isMapView = false;
     private ImageButton btnToggleView;
 
+    private List<Pet> allPetsList = new ArrayList<>();
+    private String currentSearchQuery = "";
+
     private final ActivityResultLauncher<String[]> locationPermissionRequest =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
                 Boolean fineLocationGranted = result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false);
                 Boolean coarseLocationGranted = result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false);
                 if ((fineLocationGranted != null && fineLocationGranted) || 
                     (coarseLocationGranted != null && coarseLocationGranted)) {
-                    enableMyLocation();
+                    checkLocationSettings();
                 } else {
                     Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+    private final ActivityResultLauncher<IntentSenderRequest> locationSettingsLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartIntentSenderForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    enableMyLocation();
+                } else {
+                    Toast.makeText(this, "Location settings not enabled", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -61,6 +90,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Initialize Toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         // Initialize Views
         recyclerView = findViewById(R.id.rv_pets);
@@ -89,7 +122,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         petViewModel = new ViewModelProvider(this).get(PetViewModel.class);
 
         // Observe the LiveData from ViewModel
-        petViewModel.getAllPets().observe(this, this::updateUI);
+        petViewModel.getAllPets().observe(this, pets -> {
+            this.allPetsList = pets != null ? pets : new ArrayList<>();
+            filterPets(currentSearchQuery);
+        });
 
         // Toggle View Listener
         btnToggleView.setOnClickListener(v -> toggleView());
@@ -101,10 +137,87 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                currentSearchQuery = newText;
+                filterPets(newText);
+                return true;
+            }
+        });
+
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem mapTypeItem = menu.findItem(R.id.action_map_type);
+        if (mapTypeItem != null) {
+            // Only show map type toggle if we are in map view
+            mapTypeItem.setVisible(isMapView);
+            if (googleMap != null) {
+                if (googleMap.getMapType() == GoogleMap.MAP_TYPE_SATELLITE) {
+                    mapTypeItem.setTitle("Standard View");
+                } else {
+                    mapTypeItem.setTitle("Satellite View");
+                }
+            }
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_map_type) {
+            toggleMapType();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void toggleMapType() {
+        if (googleMap == null) return;
+        
+        if (googleMap.getMapType() == GoogleMap.MAP_TYPE_NORMAL) {
+            googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+            Toast.makeText(this, "Switched to Satellite View", Toast.LENGTH_SHORT).show();
+        } else {
+            googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            Toast.makeText(this, "Switched to Standard View", Toast.LENGTH_SHORT).show();
+        }
+        invalidateOptionsMenu(); // Refresh menu title
+    }
+
+    private void filterPets(String query) {
+        List<Pet> filteredList;
+        if (query == null || query.isEmpty()) {
+            filteredList = allPetsList;
+        } else {
+            String lowerCaseQuery = query.toLowerCase().trim();
+            filteredList = allPetsList.stream()
+                    .filter(pet -> (pet.getName() != null && pet.getName().toLowerCase().contains(lowerCaseQuery)) ||
+                                   (pet.getDescription() != null && pet.getDescription().toLowerCase().contains(lowerCaseQuery)) ||
+                                   (pet.getStatus() != null && pet.getStatus().toLowerCase().contains(lowerCaseQuery)))
+                    .collect(Collectors.toList());
+        }
+        updateUI(filteredList);
+    }
+
     private void updateUI(List<Pet> pets) {
         // Handle Empty State visibility
         if (pets == null || pets.isEmpty()) {
-            // Show empty state only if we are NOT in Map View
             llEmptyState.setVisibility(isMapView ? View.GONE : View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         } else {
@@ -119,20 +232,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (pets != null) {
             updateMapMarkers(pets);
         }
+        invalidateOptionsMenu(); // Show/Hide Satellite toggle
     }
 
     private void toggleView() {
         isMapView = !isMapView;
         btnToggleView.setImageResource(isMapView ? android.R.drawable.ic_menu_sort_by_size : android.R.drawable.ic_dialog_map);
-        updateUI(petViewModel.getAllPets().getValue());
+        filterPets(currentSearchQuery);
     }
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         this.googleMap = googleMap;
-        enableMyLocation();
+        checkLocationSettings();
         
-        // 1. Handle Info Window Clicks (leads to details)
         googleMap.setOnInfoWindowClickListener(marker -> {
             Pet pet = (Pet) marker.getTag();
             if (pet != null) {
@@ -142,11 +255,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        updateMapMarkers(petViewModel.getAllPets().getValue());
+        filterPets(currentSearchQuery);
         
-        // Default camera position (e.g., center of PH)
         LatLng manila = new LatLng(14.5995, 120.9842);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(manila, 10));
+        invalidateOptionsMenu();
+    }
+
+    private void checkLocationSettings() {
+        LocationRequest locationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+
+        SettingsClient client = LocationServices.getSettingsClient(this);
+        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+
+        task.addOnSuccessListener(this, locationSettingsResponse -> enableMyLocation());
+
+        task.addOnFailureListener(this, e -> {
+            if (e instanceof ResolvableApiException) {
+                try {
+                    ResolvableApiException resolvable = (ResolvableApiException) e;
+                    locationSettingsLauncher.launch(new IntentSenderRequest.Builder(resolvable.getResolution()).build());
+                } catch (Exception sendEx) {
+                    // Ignore the error.
+                }
+            }
+        });
     }
 
     private void enableMyLocation() {
@@ -172,13 +309,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         boolean hasMarkers = false;
 
+        BitmapDescriptor pawIcon = BitmapUtils.bitmapDescriptorFromVector(this, R.drawable.ic_paw);
+
         for (Pet pet : pets) {
             if (pet.getLatitude() != 0 || pet.getLongitude() != 0) {
                 LatLng position = new LatLng(pet.getLatitude(), pet.getLongitude());
-                Marker marker = googleMap.addMarker(new MarkerOptions()
+                MarkerOptions options = new MarkerOptions()
                         .position(position)
                         .title(pet.getName())
-                        .snippet("Status: " + pet.getStatus() + "\nTap to view details"));
+                        .snippet("Status: " + pet.getStatus() + "\nTap to view details");
+                
+                if (pawIcon != null) {
+                    options.icon(pawIcon);
+                }
+
+                Marker marker = googleMap.addMarker(options);
                 
                 if (marker != null) {
                     marker.setTag(pet);
@@ -188,12 +333,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
 
-        // 3. Auto-zoom to fit all markers
         if (hasMarkers && isMapView) {
             try {
                 googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100));
             } catch (IllegalStateException e) {
-                // If map layout isn't ready, it will use default zoom
             }
         }
     }
