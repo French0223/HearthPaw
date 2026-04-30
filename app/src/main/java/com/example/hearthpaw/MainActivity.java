@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap googleMap;
     private boolean isMapView = false;
     private ImageButton btnToggleView;
+    private TextView tvTotalRescues, tvActiveFound;
 
     private List<Pet> allPetsList = new ArrayList<>();
     private String currentSearchQuery = "";
@@ -100,6 +102,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapContainer = findViewById(R.id.map_container);
         llEmptyState = findViewById(R.id.ll_empty_state);
         btnToggleView = findViewById(R.id.btn_toggle_view);
+        tvTotalRescues = findViewById(R.id.tv_total_rescues);
+        tvActiveFound = findViewById(R.id.tv_active_searches);
         ImageButton fab = findViewById(R.id.fab_add_pet);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -124,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Observe the LiveData from ViewModel
         petViewModel.getAllPets().observe(this, pets -> {
             this.allPetsList = pets != null ? pets : new ArrayList<>();
+            updateDashboard(allPetsList);
             filterPets(currentSearchQuery);
         });
 
@@ -137,13 +142,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
+    private void updateDashboard(List<Pet> pets) {
+        if (tvTotalRescues == null || tvActiveFound == null) return;
+        
+        int total = pets.size();
+        long activeFound = pets.stream()
+                .filter(pet -> pet.getStatus() != null && pet.getStatus().equalsIgnoreCase("Found"))
+                .count();
+
+        tvTotalRescues.setText(String.valueOf(total));
+        tvActiveFound.setText(String.valueOf(activeFound));
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
 
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
-
+        
+        // Ensure SearchView updates local state correctly
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -165,7 +183,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem mapTypeItem = menu.findItem(R.id.action_map_type);
         if (mapTypeItem != null) {
-            // Only show map type toggle if we are in map view
             mapTypeItem.setVisible(isMapView);
             if (googleMap != null) {
                 if (googleMap.getMapType() == GoogleMap.MAP_TYPE_SATELLITE) {
@@ -197,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
             Toast.makeText(this, "Switched to Standard View", Toast.LENGTH_SHORT).show();
         }
-        invalidateOptionsMenu(); // Refresh menu title
+        invalidateOptionsMenu();
     }
 
     private void filterPets(String query) {
@@ -216,29 +233,33 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void updateUI(List<Pet> pets) {
-        // Handle Empty State visibility
-        if (pets == null || pets.isEmpty()) {
-            llEmptyState.setVisibility(isMapView ? View.GONE : View.VISIBLE);
-            recyclerView.setVisibility(View.GONE);
-        } else {
+        if (llEmptyState == null || recyclerView == null || mapContainer == null) return;
+
+        boolean hasResults = pets != null && !pets.isEmpty();
+
+        // Handle visibility logic to ensure no flickering
+        if (isMapView) {
             llEmptyState.setVisibility(View.GONE);
-            recyclerView.setVisibility(isMapView ? View.GONE : View.VISIBLE);
-            petAdapter.submitList(pets);
+            recyclerView.setVisibility(View.GONE);
+            mapContainer.setVisibility(View.VISIBLE);
+        } else {
+            llEmptyState.setVisibility(hasResults ? View.GONE : View.VISIBLE);
+            recyclerView.setVisibility(hasResults ? View.VISIBLE : View.GONE);
+            mapContainer.setVisibility(View.GONE);
         }
 
-        // Always handle map visibility based on toggle
-        mapContainer.setVisibility(isMapView ? View.VISIBLE : View.GONE);
+        petAdapter.submitList(pets);
         
-        if (pets != null) {
+        if (googleMap != null) {
             updateMapMarkers(pets);
         }
-        invalidateOptionsMenu(); // Show/Hide Satellite toggle
     }
 
     private void toggleView() {
         isMapView = !isMapView;
         btnToggleView.setImageResource(isMapView ? android.R.drawable.ic_menu_sort_by_size : android.R.drawable.ic_dialog_map);
         filterPets(currentSearchQuery);
+        invalidateOptionsMenu(); // Critical for map type toggle visibility
     }
 
     @Override
@@ -259,7 +280,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         
         LatLng manila = new LatLng(14.5995, 120.9842);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(manila, 10));
-        invalidateOptionsMenu();
     }
 
     private void checkLocationSettings() {
@@ -280,7 +300,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     ResolvableApiException resolvable = (ResolvableApiException) e;
                     locationSettingsLauncher.launch(new IntentSenderRequest.Builder(resolvable.getResolution()).build());
                 } catch (Exception sendEx) {
-                    // Ignore the error.
                 }
             }
         });
@@ -301,10 +320,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void updateMapMarkers(List<Pet> pets) {
-        if (googleMap == null || pets == null) return;
+        if (googleMap == null) return;
 
         googleMap.clear();
-        if (pets.isEmpty()) return;
+        if (pets == null || pets.isEmpty()) return;
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         boolean hasMarkers = false;
@@ -333,10 +352,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
 
-        if (hasMarkers && isMapView) {
+        if (hasMarkers && isMapView && currentSearchQuery.isEmpty()) {
             try {
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100));
-            } catch (IllegalStateException e) {
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 150));
+            } catch (Exception e) {
             }
         }
     }

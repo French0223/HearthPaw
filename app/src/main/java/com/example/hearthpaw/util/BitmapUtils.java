@@ -12,9 +12,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
 public class BitmapUtils {
 
-    /**
-     * Converts a vector drawable (XML) to a BitmapDescriptor for Google Maps markers.
-     */
+    /**Converts a vector drawable (XML) to a BitmapDescriptor for Google Maps markers.*/
     public static BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
         Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
         if (vectorDrawable == null) return null;

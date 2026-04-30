@@ -8,7 +8,7 @@ import com.example.hearthpaw.data.model.Pet;
 import com.example.hearthpaw.data.repository.PetRepository;
 import java.util.List;
 
-/*** ViewModel class to provide data to the UI and survive configuration changes.*/
+/** ViewModel class to provide data to the UI and survive configuration changes.*/
 public class PetViewModel extends AndroidViewModel {
     private PetRepository repository;
     private LiveData<List<Pet>> allPets;

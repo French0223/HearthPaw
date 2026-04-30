@@ -8,19 +8,36 @@
     tools:context=".ui.detail.PetDetailActivity">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_detail"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/hearthpaw_primary_container">
+        android:layout_height="300dp"
+        android:background="@color/hearthpaw_primary_container"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/hearthpaw_primary_container"
-            app:title="@string/detail_title"
-            app:titleCentered="true"
-            app:titleTextAppearance="@style/TextAppearance.HearthPaw.ToolbarTitle"
-            app:titleTextColor="@color/hearthpaw_on_primary_container" />
+            android:layout_height="match_parent"
+            app:contentScrim="@color/hearthpaw_primary"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:titleEnabled="true">
+
+            <ImageView
+                android:id="@+id/detail_pet_photo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@android:drawable/ic_menu_camera"
+                app:layout_collapseMode="parallax" />
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar_detail"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -33,83 +50,83 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="18dp"
-            android:paddingTop="10dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="14dp"
-                android:text="A little profile for a big-hearted friend."
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/hearthpaw_text_soft"
-                android:textSize="14sp" />
-
-            <ImageView
-                android:id="@+id/detail_pet_photo"
-                android:layout_width="match_parent"
-                android:layout_height="220dp"
-                android:background="@color/hearthpaw_card_soft"
-                android:contentDescription="@string/pet_photo_description"
-                android:scaleType="centerCrop"
-                android:src="@android:drawable/ic_menu_camera" />
+            android:padding="20dp">
 
             <TextView
                 android:id="@+id/detail_pet_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
                 android:fontFamily="sans-serif-medium"
-                android:textSize="24sp"
+                android:textColor="@color/hearthpaw_on_primary_container"
+                android:textSize="28sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/detail_pet_status"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:background="@drawable/bg_soft_button"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:textAllCaps="true"
+                android:textColor="@color/hearthpaw_primary"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="24dp"
                 android:text="@string/detail_description_label"
                 android:textAllCaps="true"
                 android:textColor="@color/hearthpaw_text_soft"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/detail_pet_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="4dp"
+                android:textColor="@color/hearthpaw_on_primary_container"
+                android:textSize="16sp" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="24dp"
                 android:text="@string/detail_contact_label"
                 android:textAllCaps="true"
                 android:textColor="@color/hearthpaw_text_soft"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/detail_pet_phone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="8dp"
+                android:textColor="@color/hearthpaw_on_primary_container"
+                android:textSize="16sp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_call_pet"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="40dp"
                 android:text="@string/detail_call_button"
-                android:textColor="@color/hearthpaw_on_primary_container"
+                android:textColor="@color/white"
+                app:cornerRadius="16dp"
                 app:icon="@android:drawable/ic_menu_call"
                 app:iconGravity="textStart"
-                app:iconTint="@color/hearthpaw_on_primary_container" />
+                app:iconTint="@color/white" />
+
+            <!-- Spacer for bottom padding -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="40dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

@@ -5,7 +5,6 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
-    android:background="@drawable/bg_soft_card"
     app:cardCornerRadius="24dp"
     app:cardElevation="4dp"
     app:strokeWidth="1dp"
@@ -17,14 +16,22 @@
         android:orientation="horizontal"
         android:padding="12dp">
 
-        <ImageView
-            android:id="@+id/item_pet_photo"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="88dp"
             android:layout_height="88dp"
             android:layout_marginEnd="12dp"
-            android:background="@color/hearthpaw_card_soft"
-            android:contentDescription="@string/pet_photo_description"
-            android:scaleType="centerCrop" />
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:id="@+id/item_pet_photo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/hearthpaw_card_soft"
+                android:contentDescription="@string/pet_photo_description"
+                android:scaleType="centerCrop" />
+
+        </com.google.android.material.card.MaterialCardView>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -33,21 +40,34 @@
             android:orientation="vertical"
             android:paddingTop="2dp">
 
-            <TextView
-                android:id="@+id/item_pet_name"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/hearthpaw_on_primary_container"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/item_pet_status"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textColor="@color/hearthpaw_text_soft"
-                android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/item_pet_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/hearthpaw_on_primary_container"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/item_pet_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_soft_button"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="4dp"
+                    android:textAllCaps="true"
+                    android:textColor="@color/hearthpaw_primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/item_pet_description"
