@@ -1,6 +1,9 @@
 package com.example.hearthpaw.ui.main;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -9,16 +12,20 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.hearthpaw.R;
 import com.example.hearthpaw.data.model.Pet;
-import com.example.hearthpaw.util.PetImageUtils;
 import com.example.hearthpaw.ui.viewmodel.PetViewModel;
+import com.example.hearthpaw.util.PetImageUtils;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -37,7 +44,12 @@ public class AddPetActivity extends AppCompatActivity {
     private PetViewModel petViewModel;
     private ActivityResultLauncher<Intent> takePhotoLauncher;
     private ActivityResultLauncher<String> pickImageLauncher;
+    private ActivityResultLauncher<String[]> locationPermissionLauncher;
+    
     private String currentPhotoPath;
+    private FusedLocationProviderClient fusedLocationClient;
+    private double currentLat = 0.0;
+    private double currentLng = 0.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +64,27 @@ public class AddPetActivity extends AppCompatActivity {
         btnTakePhoto = findViewById(R.id.btn_take_photo);
         ivPhoto = findViewById(R.id.iv_pet_photo);
 
-        // Initialize ViewModel
+        // Initialize ViewModel and Location Client
         petViewModel = new ViewModelProvider(this).get(PetViewModel.class);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // Launcher for Camera
+        // Launchers
+        setupLaunchers();
+
+        // Click Listeners
+        btnTakePhoto.setOnClickListener(v -> capturePhoto());
+        btnTakePhoto.setOnLongClickListener(v -> {
+            pickImageLauncher.launch("image/*");
+            return true;
+        });
+
+        btnSave.setOnClickListener(v -> requestLocationAndSave());
+        
+        // Request location permission early
+        requestLocationPermission();
+    }
+
+    private void setupLaunchers() {
         takePhotoLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -68,7 +97,6 @@ public class AddPetActivity extends AppCompatActivity {
                 }
         );
 
-        // Launcher for Gallery
         pickImageLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 uri -> {
@@ -77,41 +105,70 @@ public class AddPetActivity extends AppCompatActivity {
                             currentPhotoPath = saveImageToInternalStorage(uri);
                             PetImageUtils.loadPhoto(currentPhotoPath, ivPhoto);
                         } catch (IOException e) {
-                            Toast.makeText(this, "Failed to load image from gallery", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
         );
 
-        // NORMAL CLICK for Camera, LONG CLICK for Gallery
-        btnTakePhoto.setOnClickListener(v -> capturePhoto());
-        btnTakePhoto.setOnLongClickListener(v -> {
-            pickImageLauncher.launch("image/*");
-            return true;
-        });
+        locationPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestMultiplePermissions(),
+                result -> {
+                    Boolean fineLocationGranted = result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false);
+                    Boolean coarseLocationGranted = result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false);
+                    if (fineLocationGranted || coarseLocationGranted) {
+                        getLastKnownLocation();
+                    }
+                }
+        );
+    }
 
-        btnSave.setOnClickListener(v -> savePet());
-        
-        // Let the user know about the gallery option
-        Toast.makeText(this, "Tip: Long-press 'CAPTURE PHOTO' to pick from gallery", Toast.LENGTH_LONG).show();
+    private void requestLocationPermission() {
+        locationPermissionLauncher.launch(new String[]{
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+        });
+    }
+
+    private void getLastKnownLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+            if (location != null) {
+                currentLat = location.getLatitude();
+                currentLng = location.getLongitude();
+            }
+        });
+    }
+
+    private void requestLocationAndSave() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+                if (location != null) {
+                    currentLat = location.getLatitude();
+                    currentLng = location.getLongitude();
+                }
+                savePet();
+            }).addOnFailureListener(e -> savePet()); // Save even if location fails
+        } else {
+            savePet();
+        }
     }
 
     private void capturePhoto() {
         Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         try {
             File photoFile = createImageFile();
-            Uri photoUri = FileProvider.getUriForFile(
-                    this,
-                    getPackageName() + ".fileprovider",
-                    photoFile
-            );
+            Uri photoUri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", photoFile);
             captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
             captureIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             currentPhotoPath = photoFile.getAbsolutePath();
             takePhotoLauncher.launch(captureIntent);
         } catch (IOException e) {
             currentPhotoPath = null;
-            Toast.makeText(this, "Unable to create photo file", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error creating file", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -123,15 +180,12 @@ public class AddPetActivity extends AppCompatActivity {
 
     private String saveImageToInternalStorage(Uri uri) throws IOException {
         InputStream inputStream = getContentResolver().openInputStream(uri);
-        if (inputStream == null) throw new IOException("InputStream is null");
-        
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File file = new File(storageDir, "HearthPaw_Gallery_" + System.currentTimeMillis() + ".jpg");
-        
-        try (InputStream input = inputStream; OutputStream outputStream = new FileOutputStream(file)) {
+        try (OutputStream outputStream = new FileOutputStream(file)) {
             byte[] buffer = new byte[1024];
             int length;
-            while ((length = input.read(buffer)) > 0) {
+            while ((length = inputStream.read(buffer)) > 0) {
                 outputStream.write(buffer, 0, length);
             }
         }
@@ -140,9 +194,7 @@ public class AddPetActivity extends AppCompatActivity {
 
     private void deleteTempFile(String path) {
         File file = new File(path);
-        if (file.exists()) {
-            file.delete();
-        }
+        if (file.exists()) file.delete();
     }
 
     private void savePet() {
@@ -159,14 +211,14 @@ public class AddPetActivity extends AppCompatActivity {
                 name,
                 description,
                 currentPhotoPath != null ? currentPhotoPath : "",
-                getString(R.string.cute_status_owner),
-                0.0,
-                0.0,
+                "Found",
+                currentLat,
+                currentLng,
                 phone
         );
 
         petViewModel.insert(newPet);
-        Toast.makeText(this, "Pet registered successfully!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Pet registered at your current location!", Toast.LENGTH_SHORT).show();
         finish();
     }
 }

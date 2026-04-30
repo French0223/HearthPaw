@@ -21,8 +21,19 @@
             app:title="HearthPaw"
             app:titleCentered="true"
             app:titleTextAppearance="@style/TextAppearance.HearthPaw.ToolbarTitle"
-            app:titleTextColor="@color/hearthpaw_on_primary_container"
-            />
+            app:titleTextColor="@color/hearthpaw_on_primary_container">
+
+            <ImageButton
+                android:id="@+id/btn_toggle_view"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_dialog_map"
+                app:tint="@color/hearthpaw_on_primary_container" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -53,11 +64,20 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="6dp"
             android:layout_marginEnd="20dp"
-            android:text="Tap a rescue card to see the full details and call the contact guardian."
+            android:text="Tap a rescue card or pin to see details."
             android:textColor="@color/hearthpaw_text_soft"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_main_header" />
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/map_container"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_main_subheader" />
 
         <!-- Cuter Empty State with Icon -->
         <LinearLayout
@@ -93,11 +113,12 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_pets"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:clipToPadding="false"
-            android:paddingTop="88dp"
             android:paddingBottom="96dp"
-            android:visibility="gone" />
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_main_subheader" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
