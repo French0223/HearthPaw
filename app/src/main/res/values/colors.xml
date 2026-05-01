@@ -19,4 +19,6 @@
     <color name="hearthpaw_card">#FFFFFDFE</color>
     <color name="hearthpaw_card_soft">#FFFCEEF2</color>
     <color name="hearthpaw_text_soft">#FF6B5963</color>
+    <color name="status_searching">#FFE53935</color>
+    <color name="status_adopted">#FF43A047</color>
 </resources>

@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -72,6 +73,7 @@ public class PetAdapter extends ListAdapter<Pet, PetAdapter.PetViewHolder> {
 
         private final ImageView photoView;
         private final TextView nameView;
+        private final ImageView statusIconView;
         private final TextView statusView;
         private final TextView descriptionView;
 
@@ -79,16 +81,45 @@ public class PetAdapter extends ListAdapter<Pet, PetAdapter.PetViewHolder> {
             super(itemView);
             photoView = itemView.findViewById(R.id.item_pet_photo);
             nameView = itemView.findViewById(R.id.item_pet_name);
+            statusIconView = itemView.findViewById(R.id.item_pet_status_icon);
             statusView = itemView.findViewById(R.id.item_pet_status);
             descriptionView = itemView.findViewById(R.id.item_pet_description);
         }
 
         void bind(Pet pet, OnPetClickListener listener) {
             nameView.setText(pet.getName());
-            statusView.setText(pet.getStatus());
+            statusView.setText(getDisplayStatus(pet.getStatus()));
             descriptionView.setText(pet.getDescription());
             PetImageUtils.loadPhoto(pet.getPhotoPath(), photoView);
+
+            if (isAdoptedStatus(pet.getStatus())) {
+                statusIconView.setImageResource(R.drawable.ic_heart_adopted);
+                nameView.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.status_adopted));
+            } else {
+                statusIconView.setImageResource(R.drawable.ic_heart_searching);
+                nameView.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.status_searching));
+            }
+            
             itemView.setOnClickListener(v -> listener.onPetClick(pet));
+        }
+
+        private boolean isAdoptedStatus(String status) {
+            if (status == null) {
+                return false;
+            }
+
+            String normalizedStatus = status.trim().toLowerCase();
+            return normalizedStatus.contains("adopt")
+                    || normalizedStatus.contains("found a parent")
+                    || normalizedStatus.contains("found a home");
+        }
+
+        private String getDisplayStatus(String status) {
+            if (isAdoptedStatus(status)) {
+                return itemView.getResources().getString(R.string.cute_status_adoptable);
+            }
+
+            return itemView.getResources().getString(R.string.cute_status_owner);
         }
     }
 }

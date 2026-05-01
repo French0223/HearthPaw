@@ -137,8 +137,25 @@ public class PetDetailActivity extends AppCompatActivity implements CareTaskAdap
         petNameView.setText(pet.getName());
         petDescriptionView.setText(pet.getDescription());
         petPhoneView.setText(pet.getContactNumber());
-        btnStatusToggle.setText(pet.getStatus());
+        btnStatusToggle.setText(getDisplayStatus(pet.getStatus()));
         PetImageUtils.loadPhoto(pet.getPhotoPath(), petPhotoView);
+        
+        // Apply status-based coloring to status button
+        if (isAdoptedStatus(pet.getStatus())) {
+            btnStatusToggle.setBackgroundColor(ContextCompat.getColor(this, R.color.status_adopted));
+            btnStatusToggle.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+        } else {
+            btnStatusToggle.setBackgroundColor(ContextCompat.getColor(this, R.color.status_searching));
+            btnStatusToggle.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+        }
+    }
+
+    private boolean isAdoptedStatus(String status) {
+        if (status == null) return false;
+        String normalizedStatus = status.trim().toLowerCase();
+        return normalizedStatus.contains("adopt")
+                || normalizedStatus.contains("found a parent")
+                || normalizedStatus.contains("found a home");
     }
 
     private void makeCall() {
@@ -153,13 +170,30 @@ public class PetDetailActivity extends AppCompatActivity implements CareTaskAdap
     private void toggleStatus() {
         if (currentPet == null) return;
 
-        List<String> statuses = Arrays.asList("Found", "Searching for Owner", "Adoptable");
-        int currentIndex = statuses.indexOf(currentPet.getStatus());
+        List<String> statuses = Arrays.asList(
+                getString(R.string.cute_status_owner),
+                getString(R.string.cute_status_adoptable)
+        );
+        int currentIndex = statuses.indexOf(getDisplayStatus(currentPet.getStatus()));
         int nextIndex = (currentIndex + 1) % statuses.size();
-        
+
         currentPet.setStatus(statuses.get(nextIndex));
         petViewModel.update(currentPet);
-        Toast.makeText(this, "Status updated to: " + currentPet.getStatus(), Toast.LENGTH_SHORT).show();
+        btnStatusToggle.setText(getDisplayStatus(currentPet.getStatus()));
+        Toast.makeText(this, "Status updated to: " + getDisplayStatus(currentPet.getStatus()), Toast.LENGTH_SHORT).show();
+    }
+
+    private String getDisplayStatus(String status) {
+        if (status == null) {
+            return getString(R.string.cute_status_owner);
+        }
+
+        String normalizedStatus = status.trim().toLowerCase();
+        if (normalizedStatus.contains("adopt") || normalizedStatus.contains("found a parent")) {
+            return getString(R.string.cute_status_adoptable);
+        }
+
+        return getString(R.string.cute_status_owner);
     }
 
     private void showAddTaskDialog() {

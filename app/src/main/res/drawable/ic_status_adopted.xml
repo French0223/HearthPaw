@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Shadow/Background circle -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#B8E6B8" />
+        </shape>
+    </item>
+    
+    <!-- Main green circle -->
+    <item android:inset="2dp">
+        <shape android:shape="oval">
+            <solid android:color="#43A047" />
+        </shape>
+    </item>
+</layer-list>

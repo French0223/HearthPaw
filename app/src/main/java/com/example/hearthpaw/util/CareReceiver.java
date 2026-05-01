@@ -4,8 +4,10 @@ import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.hearthpaw.R;
 
@@ -17,8 +19,9 @@ public class CareReceiver extends BroadcastReceiver {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CareNotificationHelper.CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_paw)
-                .setContentTitle("Pet Care Reminder: " + petName)
-                .setContentText("It's time for: " + taskName)
+                .setColor(ContextCompat.getColor(context, R.color.hearthpaw_primary))
+                .setContentTitle("🐾 Pet Care: " + petName)
+                .setContentText("Time for " + taskName + "! ❤️")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true);
 

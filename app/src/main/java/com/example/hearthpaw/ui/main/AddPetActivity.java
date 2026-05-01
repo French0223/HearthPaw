@@ -212,7 +212,7 @@ public class AddPetActivity extends AppCompatActivity {
                 name,
                 description,
                 currentPhotoPath != null ? currentPhotoPath : "",
-                getString(R.string.cute_status_found),
+            getString(R.string.cute_status_owner),
                 currentLat,
                 currentLng,
                 phone
