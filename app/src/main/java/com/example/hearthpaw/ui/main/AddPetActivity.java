@@ -179,10 +179,11 @@ public class AddPetActivity extends AppCompatActivity {
     }
 
     private String saveImageToInternalStorage(Uri uri) throws IOException {
-        InputStream inputStream = getContentResolver().openInputStream(uri);
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File file = new File(storageDir, "HearthPaw_Gallery_" + System.currentTimeMillis() + ".jpg");
-        try (OutputStream outputStream = new FileOutputStream(file)) {
+        try (InputStream inputStream = getContentResolver().openInputStream(uri);
+             OutputStream outputStream = new FileOutputStream(file)) {
+            if (inputStream == null) throw new IOException("Failed to open input stream");
             byte[] buffer = new byte[1024];
             int length;
             while ((length = inputStream.read(buffer)) > 0) {
@@ -211,14 +212,14 @@ public class AddPetActivity extends AppCompatActivity {
                 name,
                 description,
                 currentPhotoPath != null ? currentPhotoPath : "",
-                "Found",
+                getString(R.string.cute_status_found),
                 currentLat,
                 currentLng,
                 phone
         );
 
         petViewModel.insert(newPet);
-        Toast.makeText(this, "Pet registered at your current location!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Pet registered successfully!", Toast.LENGTH_SHORT).show();
         finish();
     }
 }

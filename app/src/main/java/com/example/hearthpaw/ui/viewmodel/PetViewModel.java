@@ -4,6 +4,7 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import com.example.hearthpaw.data.model.CareTask;
 import com.example.hearthpaw.data.model.Pet;
 import com.example.hearthpaw.data.repository.PetRepository;
 import java.util.List;
@@ -37,5 +38,22 @@ public class PetViewModel extends AndroidViewModel {
 
     public void delete(Pet pet) {
         repository.delete(pet);
+    }
+
+    // Care Task Operations
+    public LiveData<List<CareTask>> getTasksForPet(int petId) {
+        return repository.getTasksForPet(petId);
+    }
+
+    public void insertTask(CareTask task) {
+        repository.insertTask(task);
+    }
+
+    public void updateTask(CareTask task) {
+        repository.updateTask(task);
+    }
+
+    public void deleteTask(CareTask task) {
+        repository.deleteTask(task);
     }
 }

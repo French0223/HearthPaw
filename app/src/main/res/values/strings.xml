@@ -18,4 +18,9 @@
     <string name="cute_status_found">Found</string>
     <string name="cute_status_owner">Searching for Owner</string>
     <string name="cute_status_adoptable">Adoptable</string>
+
+    <string name="delete_pet_confirm">Are you sure you want to delete this rescue record?</string>
+    <string name="delete_pet_title">Delete Pet</string>
+    <string name="task_name_hint">Task Name (e.g., Feeding)</string>
+    <string name="task_time_hint">Time (e.g., 8:00 AM)</string>
 </resources>
