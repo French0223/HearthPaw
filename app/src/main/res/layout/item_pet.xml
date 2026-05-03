@@ -11,19 +11,21 @@
     app:strokeWidth="1dp"
     app:strokeColor="@color/hearthpaw_outline">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:padding="12dp">
 
         <!-- Pet Photo -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_photo_container"
             android:layout_width="88dp"
             android:layout_height="88dp"
-            android:layout_marginEnd="12dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="0dp">
+            app:cardElevation="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/item_pet_photo"
@@ -32,79 +34,67 @@
                 android:background="@color/white"
                 android:contentDescription="@string/pet_photo_description"
                 android:scaleType="centerCrop" />
-
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Main Info Container -->
-        <LinearLayout
+        <!-- Pet Name - Top of the card -->
+        <TextView
+            android:id="@+id/item_pet_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="horizontal">
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
+            android:includeFontPadding="false"
+            android:textColor="@color/hearthpaw_on_primary_container"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/item_pet_status"
+            app:layout_constraintStart_toEndOf="@id/card_photo_container"
+            app:layout_constraintTop_toTopOf="@id/card_photo_container"
+            tools:text="Ambot" />
 
-            <!-- Text Column (Name & Description very close) -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+        <!-- Status Badge - Top right -->
+        <TextView
+            android:id="@+id/item_pet_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_soft_button"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:textAllCaps="true"
+            android:textColor="@color/hearthpaw_primary"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/item_pet_name"
+            tools:text="FOUND" />
 
-                <TextView
-                    android:id="@+id/item_pet_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:includeFontPadding="false"
-                    android:textColor="@color/hearthpaw_on_primary_container"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    tools:text="Ambot" />
+        <!-- Description - DIRECTLY under name with NO padding -->
+        <TextView
+            android:id="@+id/item_pet_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-2dp"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:maxLines="2"
+            android:textColor="@color/hearthpaw_text_soft"
+            app:layout_constraintEnd_toStartOf="@+id/item_pet_status_icon"
+            app:layout_constraintStart_toStartOf="@id/item_pet_name"
+            app:layout_constraintTop_toBottomOf="@id/item_pet_name"
+            tools:text="sdvbsbrf" />
 
-                <TextView
-                    android:id="@+id/item_pet_description"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="0dp"
-                    android:ellipsize="end"
-                    android:includeFontPadding="false"
-                    android:maxLines="2"
-                    android:textColor="@color/hearthpaw_text_soft"
-                    tools:text="sdvbsbrf" />
+        <!-- Logo (Heart) - Stays centered in the remaining space -->
+        <ImageView
+            android:id="@+id/item_pet_status_icon"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:contentDescription="@string/pet_status_icon"
+            android:scaleType="centerInside"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/item_pet_status"
+            tools:src="@drawable/ic_heart_searching" />
 
-            </LinearLayout>
-
-            <!-- Status Column (Badge and Logo) -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="end"
-                android:orientation="vertical"
-                android:paddingStart="8dp">
-
-                <TextView
-                    android:id="@+id/item_pet_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_soft_button"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="4dp"
-                    android:textAllCaps="true"
-                    android:textColor="@color/hearthpaw_primary"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    tools:text="FOUND" />
-
-                <ImageView
-                    android:id="@+id/item_pet_status_icon"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_marginTop="4dp"
-                    android:contentDescription="@string/pet_status_icon"
-                    android:scaleType="centerInside"
-                    tools:src="@drawable/ic_paw" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>

@@ -24,4 +24,9 @@
     <string name="delete_pet_title">Delete Pet</string>
     <string name="task_name_hint">Task Name (e.g., Feeding)</string>
     <string name="task_time_hint">Time (e.g., 8:00 AM)</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_map">Rescue Map</string>
+    <string name="menu_about">About HearthPaw</string>
+    <string name="menu_about_title">About</string>
 </resources>
