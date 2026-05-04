@@ -10,6 +10,12 @@
     <string name="add_pet_phone_hint">Rescuer Contact Number</string>
     <string name="capture_photo">Capture Photo</string>
     <string name="register_rescue">Register Rescue</string>
+    <string name="error_name_required">Pet name is required</string>
+    <string name="error_description_required">Description is required</string>
+    <string name="error_phone_required">Contact number is required</string>
+    <string name="error_phone_invalid">Enter a valid contact number</string>
+    <string name="error_species_required">Please select a species</string>
+    <string name="error_chip_required">Please choose at least one of gender, age, or health status</string>
     
     <!-- Species Dropdown -->
     <string name="species_label">Pet Species</string>

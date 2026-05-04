@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -28,8 +29,10 @@ import com.example.hearthpaw.util.PetImageUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -43,6 +46,7 @@ public class AddPetActivity extends AppCompatActivity {
 
     private TextInputEditText etName, etDescription, etPhone;
     private AutoCompleteTextView etSpecies;
+    private TextInputLayout tilName, tilDescription, tilPhone, tilSpecies;
     private Button btnSave;
     private MaterialButton btnTakePhoto;
     private MaterialButton btnUpdateLocation;
@@ -71,6 +75,10 @@ public class AddPetActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_pet);
 
         // Initialize Views
+        tilName = findViewById(R.id.til_name);
+        tilDescription = findViewById(R.id.til_description);
+        tilPhone = findViewById(R.id.til_phone);
+        tilSpecies = findViewById(R.id.til_species);
         etName = findViewById(R.id.et_pet_name);
         etDescription = findViewById(R.id.et_pet_description);
         etPhone = findViewById(R.id.et_pet_phone);
@@ -162,12 +170,72 @@ public class AddPetActivity extends AppCompatActivity {
     }
 
     private String getChipText(int chipId) {
-        try {
-            return findViewById(chipId).getContentDescription().toString();
-        } catch (Exception e) {
-            // Fallback for older approach
-            return "";
+        Chip chip = findViewById(chipId);
+        return chip != null ? chip.getText().toString().trim() : "";
+    }
+
+    private boolean isPhoneValid(String phone) {
+        String normalized = phone.replaceAll("[\\s\\-()]", "").trim();
+        if (normalized.startsWith("+")) {
+            normalized = normalized.substring(1);
         }
+        return normalized.matches("\\d{7,15}");
+    }
+
+    private boolean hasAtLeastOneDetailChip() {
+        return !TextUtils.isEmpty(selectedGender)
+                || !TextUtils.isEmpty(selectedAge)
+                || !TextUtils.isEmpty(selectedHealth);
+    }
+
+    private void clearFormErrors() {
+        if (tilName != null) tilName.setError(null);
+        if (tilDescription != null) tilDescription.setError(null);
+        if (tilPhone != null) tilPhone.setError(null);
+        if (tilSpecies != null) tilSpecies.setError(null);
+    }
+
+    private boolean validateForm() {
+        clearFormErrors();
+
+        String name = etName.getText() != null ? etName.getText().toString().trim() : "";
+        String description = etDescription.getText() != null ? etDescription.getText().toString().trim() : "";
+        String phone = etPhone.getText() != null ? etPhone.getText().toString().trim() : "";
+        String species = etSpecies.getText() != null ? etSpecies.getText().toString().trim() : "";
+
+        boolean isValid = true;
+
+        if (name.isEmpty()) {
+            if (tilName != null) tilName.setError(getString(R.string.error_name_required));
+            isValid = false;
+        }
+
+        if (description.isEmpty()) {
+            if (tilDescription != null) tilDescription.setError(getString(R.string.error_description_required));
+            isValid = false;
+        }
+
+        if (phone.isEmpty()) {
+            if (tilPhone != null) tilPhone.setError(getString(R.string.error_phone_required));
+            isValid = false;
+        } else if (!isPhoneValid(phone)) {
+            if (tilPhone != null) tilPhone.setError(getString(R.string.error_phone_invalid));
+            isValid = false;
+        }
+
+        if (species.isEmpty()) {
+            if (tilSpecies != null) tilSpecies.setError(getString(R.string.error_species_required));
+            isValid = false;
+        } else {
+            selectedSpecies = species;
+        }
+
+        if (!hasAtLeastOneDetailChip()) {
+            Toast.makeText(this, getString(R.string.error_chip_required), Toast.LENGTH_SHORT).show();
+            isValid = false;
+        }
+
+        return isValid;
     }
 
     private void setupLaunchers() {
@@ -317,14 +385,13 @@ public class AddPetActivity extends AppCompatActivity {
 
     private void savePet() {
         try {
+            if (!validateForm()) {
+                return;
+            }
+
             String name = etName.getText().toString().trim();
             String description = etDescription.getText().toString().trim();
             String phone = etPhone.getText().toString().trim();
-
-            if (name.isEmpty() || description.isEmpty() || phone.isEmpty()) {
-                Toast.makeText(this, "Please fill all required fields", Toast.LENGTH_SHORT).show();
-                return;
-            }
 
             Pet newPet = new Pet(
                     name,
