@@ -17,6 +17,10 @@ public class Pet {
     private double longitude;
     private String contactNumber;
     private long timestamp;
+    private String species; 
+    private String gender; 
+    private String age; 
+    private String healthStatus; 
 
     // Constructor
     public Pet(String name, String description, String photoPath, String status, 
@@ -58,4 +62,16 @@ public class Pet {
 
     public long getTimestamp() { return timestamp; }
     public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
+
+    public String getSpecies() { return species; }
+    public void setSpecies(String species) { this.species = species; }
+
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
+
+    public String getAge() { return age; }
+    public void setAge(String age) { this.age = age; }
+
+    public String getHealthStatus() { return healthStatus; }
+    public void setHealthStatus(String healthStatus) { this.healthStatus = healthStatus; }
 }

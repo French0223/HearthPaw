@@ -12,7 +12,7 @@ import com.example.hearthpaw.data.model.Pet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Pet.class, CareTask.class}, version = 2, exportSchema = false)
+@Database(entities = {Pet.class, CareTask.class}, version = 3, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract PetDao petDao();

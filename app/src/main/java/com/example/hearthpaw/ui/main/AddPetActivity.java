@@ -3,18 +3,19 @@ package com.example.hearthpaw.ui.main;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
@@ -27,6 +28,7 @@ import com.example.hearthpaw.util.PetImageUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.File;
@@ -34,19 +36,31 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AddPetActivity extends AppCompatActivity {
 
     private TextInputEditText etName, etDescription, etPhone;
+    private AutoCompleteTextView etSpecies;
     private Button btnSave;
     private MaterialButton btnTakePhoto;
+    private MaterialButton btnUpdateLocation;
     private ImageView ivPhoto;
+    private ChipGroup chipGroupGender, chipGroupAge, chipGroupHealth;
+    private TextView tvMapCoordinates;
+    
     private PetViewModel petViewModel;
     private ActivityResultLauncher<Intent> takePhotoLauncher;
     private ActivityResultLauncher<String> pickImageLauncher;
     private ActivityResultLauncher<String[]> locationPermissionLauncher;
     
     private String currentPhotoPath;
+    private String selectedSpecies = "";
+    private String selectedGender = "";
+    private String selectedAge = "";
+    private String selectedHealth = "";
+    
     private FusedLocationProviderClient fusedLocationClient;
     private double currentLat = 0.0;
     private double currentLng = 0.0;
@@ -60,16 +74,23 @@ public class AddPetActivity extends AppCompatActivity {
         etName = findViewById(R.id.et_pet_name);
         etDescription = findViewById(R.id.et_pet_description);
         etPhone = findViewById(R.id.et_pet_phone);
+        etSpecies = findViewById(R.id.et_species);
         btnSave = findViewById(R.id.btn_save_pet);
         btnTakePhoto = findViewById(R.id.btn_take_photo);
+        btnUpdateLocation = findViewById(R.id.btn_update_location);
         ivPhoto = findViewById(R.id.iv_pet_photo);
+        chipGroupGender = findViewById(R.id.chip_group_gender);
+        chipGroupAge = findViewById(R.id.chip_group_age);
+        chipGroupHealth = findViewById(R.id.chip_group_health);
+        tvMapCoordinates = findViewById(R.id.tv_map_coordinates);
 
         // Initialize ViewModel and Location Client
         petViewModel = new ViewModelProvider(this).get(PetViewModel.class);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // Launchers
         setupLaunchers();
+        setupSpeciesDropdown();
+        setupChipListeners();
 
         // Click Listeners
         btnTakePhoto.setOnClickListener(v -> capturePhoto());
@@ -77,11 +98,76 @@ public class AddPetActivity extends AppCompatActivity {
             pickImageLauncher.launch("image/*");
             return true;
         });
-
+        btnUpdateLocation.setOnClickListener(v -> getLastKnownLocation());
         btnSave.setOnClickListener(v -> requestLocationAndSave());
         
         // Request location permission early
         requestLocationPermission();
+    }
+
+    private void setupSpeciesDropdown() {
+        try {
+            List<String> species = new ArrayList<>();
+            species.add(getString(R.string.species_dog));
+            species.add(getString(R.string.species_cat));
+            species.add(getString(R.string.species_rabbit));
+            species.add(getString(R.string.species_bird));
+            species.add(getString(R.string.species_other));
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, species);
+            etSpecies.setAdapter(adapter);
+
+            etSpecies.setOnItemClickListener((parent, view, position, id) -> {
+                selectedSpecies = (String) parent.getItemAtPosition(position);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setupChipListeners() {
+        try {
+            // Gender chips
+            chipGroupGender.setOnCheckedStateChangeListener((group, checkedIds) -> {
+                if (checkedIds.isEmpty()) {
+                    selectedGender = "";
+                } else {
+                    int chipId = checkedIds.get(0);
+                    selectedGender = getChipText(chipId);
+                }
+            });
+
+            // Age chips
+            chipGroupAge.setOnCheckedStateChangeListener((group, checkedIds) -> {
+                if (checkedIds.isEmpty()) {
+                    selectedAge = "";
+                } else {
+                    int chipId = checkedIds.get(0);
+                    selectedAge = getChipText(chipId);
+                }
+            });
+
+            // Health status chips
+            chipGroupHealth.setOnCheckedStateChangeListener((group, checkedIds) -> {
+                if (checkedIds.isEmpty()) {
+                    selectedHealth = "";
+                } else {
+                    int chipId = checkedIds.get(0);
+                    selectedHealth = getChipText(chipId);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getChipText(int chipId) {
+        try {
+            return findViewById(chipId).getContentDescription().toString();
+        } catch (Exception e) {
+            // Fallback for older approach
+            return "";
+        }
     }
 
     private void setupLaunchers() {
@@ -124,42 +210,68 @@ public class AddPetActivity extends AppCompatActivity {
     }
 
     private void requestLocationPermission() {
-        locationPermissionLauncher.launch(new String[]{
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-        });
+        try {
+            locationPermissionLauncher.launch(new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void getLastKnownLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
-            if (location != null) {
-                currentLat = location.getLatitude();
-                currentLng = location.getLongitude();
+        try {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
             }
-        });
-    }
-
-    private void requestLocationAndSave() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
                 if (location != null) {
                     currentLat = location.getLatitude();
                     currentLng = location.getLongitude();
+                    updateCoordinatesDisplay();
+                    Toast.makeText(this, "Location updated", Toast.LENGTH_SHORT).show();
                 }
+            });
+        } catch (Exception e) {
+            Toast.makeText(this, "Error getting location", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
+    private void updateCoordinatesDisplay() {
+        try {
+            if (tvMapCoordinates != null) {
+                String coordinates = String.format("Lat: %.4f, Lng: %.4f", currentLat, currentLng);
+                tvMapCoordinates.setText(coordinates);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void requestLocationAndSave() {
+        try {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+                    if (location != null) {
+                        currentLat = location.getLatitude();
+                        currentLng = location.getLongitude();
+                    }
+                    savePet();
+                }).addOnFailureListener(e -> savePet());
+            } else {
                 savePet();
-            }).addOnFailureListener(e -> savePet()); // Save even if location fails
-        } else {
+            }
+        } catch (Exception e) {
             savePet();
         }
     }
 
     private void capturePhoto() {
-        Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         try {
+            Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             File photoFile = createImageFile();
             Uri photoUri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", photoFile);
             captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
@@ -169,6 +281,7 @@ public class AddPetActivity extends AppCompatActivity {
         } catch (IOException e) {
             currentPhotoPath = null;
             Toast.makeText(this, "Error creating file", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 
@@ -194,32 +307,46 @@ public class AddPetActivity extends AppCompatActivity {
     }
 
     private void deleteTempFile(String path) {
-        File file = new File(path);
-        if (file.exists()) file.delete();
+        try {
+            File file = new File(path);
+            if (file.exists()) file.delete();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void savePet() {
-        String name = etName.getText().toString().trim();
-        String description = etDescription.getText().toString().trim();
-        String phone = etPhone.getText().toString().trim();
+        try {
+            String name = etName.getText().toString().trim();
+            String description = etDescription.getText().toString().trim();
+            String phone = etPhone.getText().toString().trim();
 
-        if (name.isEmpty() || description.isEmpty() || phone.isEmpty()) {
-            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
-            return;
+            if (name.isEmpty() || description.isEmpty() || phone.isEmpty()) {
+                Toast.makeText(this, "Please fill all required fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Pet newPet = new Pet(
+                    name,
+                    description,
+                    currentPhotoPath != null ? currentPhotoPath : "",
+                    getString(R.string.cute_status_owner),
+                    currentLat,
+                    currentLng,
+                    phone
+            );
+
+            newPet.setSpecies(selectedSpecies);
+            newPet.setGender(selectedGender);
+            newPet.setAge(selectedAge);
+            newPet.setHealthStatus(selectedHealth);
+
+            petViewModel.insert(newPet);
+            Toast.makeText(this, "Pet registered successfully!", Toast.LENGTH_SHORT).show();
+            finish();
+        } catch (Exception e) {
+            Toast.makeText(this, "Error saving pet", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
-
-        Pet newPet = new Pet(
-                name,
-                description,
-                currentPhotoPath != null ? currentPhotoPath : "",
-            getString(R.string.cute_status_owner),
-                currentLat,
-                currentLng,
-                phone
-        );
-
-        petViewModel.insert(newPet);
-        Toast.makeText(this, "Pet registered successfully!", Toast.LENGTH_SHORT).show();
-        finish();
     }
 }

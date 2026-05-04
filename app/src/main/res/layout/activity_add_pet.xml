@@ -20,8 +20,7 @@
             app:title="@string/add_pet_title"
             app:titleCentered="true"
             app:titleTextAppearance="@style/TextAppearance.HearthPaw.ToolbarTitle"
-            app:titleTextColor="@color/hearthpaw_on_primary_container"
-            />
+            app:titleTextColor="@color/hearthpaw_on_primary_container" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -101,6 +100,25 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Species Dropdown -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_species"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:hint="@string/species_label">
+
+                <AutoCompleteTextView
+                    android:id="@+id/et_species"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:inputType="none"
+                    android:textColor="@color/hearthpaw_on_primary_container" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
             <!-- Description Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_description"
@@ -120,6 +138,180 @@
                     android:lines="3" />
 
             </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Gender Chips -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/gender_label"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/hearthpaw_on_primary_container"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="4dp" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_gender"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                app:selectionRequired="false"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_male"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/gender_male"
+                    style="@style/Widget.Material3.Chip.Filter" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_female"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/gender_female"
+                    style="@style/Widget.Material3.Chip.Filter" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_unknown_gender"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/gender_unknown"
+                    style="@style/Widget.Material3.Chip.Filter" />
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- Age Chips -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/age_label"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/hearthpaw_on_primary_container"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="4dp" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_age"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                app:selectionRequired="false"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_puppy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/age_puppy"
+                    style="@style/Widget.Material3.Chip.Filter" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_adult"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/age_adult"
+                    style="@style/Widget.Material3.Chip.Filter" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_senior"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/age_senior"
+                    style="@style/Widget.Material3.Chip.Filter" />
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- Health Status Chips -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/health_label"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/hearthpaw_on_primary_container"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="4dp" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_health"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="18dp"
+                app:selectionRequired="false"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_healthy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/health_healthy"
+                    style="@style/Widget.Material3.Chip.Filter" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_injured"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/health_injured"
+                    style="@style/Widget.Material3.Chip.Filter" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_sick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/health_sick"
+                    style="@style/Widget.Material3.Chip.Filter" />
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- Location Preview Card -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/map_preview_label"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/hearthpaw_on_primary_container"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="4dp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_map_preview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/hearthpaw_outline">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tv_map_coordinates"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/map_preview_hint"
+                        android:textColor="@color/hearthpaw_on_primary_container"
+                        android:textSize="14sp"
+                        android:fontFamily="monospace"
+                        android:layout_marginBottom="12dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_update_location"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Get Current Location"
+                        style="@style/Widget.Material3.Button.OutlinedButton" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Phone Number Input -->
             <com.google.android.material.textfield.TextInputLayout
