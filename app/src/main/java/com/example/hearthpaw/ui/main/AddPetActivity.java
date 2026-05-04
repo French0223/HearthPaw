@@ -3,6 +3,8 @@ package com.example.hearthpaw.ui.main;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -73,6 +75,7 @@ public class AddPetActivity extends AppCompatActivity {
     private double currentLat = 0.0;
     private double currentLng = 0.0;
     private boolean hasLocation = false;
+    private String currentPlaceName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -334,11 +337,44 @@ public class AddPetActivity extends AppCompatActivity {
         currentLat = location.getLatitude();
         currentLng = location.getLongitude();
         hasLocation = true;
-        updateCoordinatesDisplay();
+        resolvePlaceName(location);
         if (btnUpdateLocation != null) {
             btnUpdateLocation.setEnabled(true);
             btnUpdateLocation.setText(R.string.location_button_get_current);
         }
+    }
+
+    private void resolvePlaceName(Location location) {
+        currentPlaceName = "";
+
+        if (!Geocoder.isPresent()) {
+            updateCoordinatesDisplay();
+            return;
+        }
+
+        new Thread(() -> {
+            try {
+                Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+                java.util.List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                if (addresses != null && !addresses.isEmpty()) {
+                    Address address = addresses.get(0);
+
+                    if (address.getLocality() != null && !address.getLocality().trim().isEmpty()) {
+                        currentPlaceName = address.getLocality().trim();
+                    } else if (address.getSubAdminArea() != null && !address.getSubAdminArea().trim().isEmpty()) {
+                        currentPlaceName = address.getSubAdminArea().trim();
+                    } else if (address.getAdminArea() != null && !address.getAdminArea().trim().isEmpty()) {
+                        currentPlaceName = address.getAdminArea().trim();
+                    } else if (address.getCountryName() != null && !address.getCountryName().trim().isEmpty()) {
+                        currentPlaceName = address.getCountryName().trim();
+                    }
+                }
+            } catch (Exception ignored) {
+                currentPlaceName = "";
+            }
+
+            runOnUiThread(this::updateCoordinatesDisplay);
+        }).start();
     }
 
     private void requestFreshLocation(boolean showUserFeedback, Runnable onComplete) {
@@ -433,8 +469,12 @@ public class AddPetActivity extends AppCompatActivity {
     private void updateCoordinatesDisplay() {
         try {
             if (tvMapCoordinates != null) {
-                String coordinates = String.format(Locale.US, "Lat: %.4f, Lng: %.4f", currentLat, currentLng);
-                tvMapCoordinates.setText(coordinates);
+                if (!currentPlaceName.isEmpty()) {
+                    tvMapCoordinates.setText(getString(R.string.location_place_name, currentPlaceName));
+                } else {
+                    String coordinates = String.format(Locale.US, "Lat: %.4f, Lng: %.4f", currentLat, currentLng);
+                    tvMapCoordinates.setText(coordinates);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -20,7 +20,9 @@ public class Pet {
     private String species; 
     private String gender; 
     private String age; 
-    private String healthStatus; 
+    private String healthStatus;
+    private long statusUpdatedAt;
+    private long nextReminderDate;
 
     // Constructor
     public Pet(String name, String description, String photoPath, String status, 
@@ -33,6 +35,8 @@ public class Pet {
         this.longitude = longitude;
         this.contactNumber = contactNumber;
         this.timestamp = System.currentTimeMillis();
+        this.statusUpdatedAt = System.currentTimeMillis();
+        this.nextReminderDate = 0;
     }
 
     // Getters and Setters
@@ -74,4 +78,10 @@ public class Pet {
 
     public String getHealthStatus() { return healthStatus; }
     public void setHealthStatus(String healthStatus) { this.healthStatus = healthStatus; }
+
+    public long getStatusUpdatedAt() { return statusUpdatedAt; }
+    public void setStatusUpdatedAt(long statusUpdatedAt) { this.statusUpdatedAt = statusUpdatedAt; }
+
+    public long getNextReminderDate() { return nextReminderDate; }
+    public void setNextReminderDate(long nextReminderDate) { this.nextReminderDate = nextReminderDate; }
 }

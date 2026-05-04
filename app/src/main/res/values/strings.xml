@@ -22,8 +22,19 @@
     <string name="location_state_locating">Locating…</string>
     <string name="location_state_unavailable">Location unavailable</string>
     <string name="location_updated">Location updated</string>
+    <string name="location_place_name">Place: %1$s</string>
     <string name="location_unavailable_toast">Location unavailable</string>
     <string name="location_saved_without">Saved without location</string>
+
+    <!-- Workflow Features -->
+    <string name="export_share">Export &amp; Share</string>
+    <string name="set_reminder">Set Reminder</string>
+    <string name="set_follow_up_reminder">Set Follow-up Reminder</string>
+    <string name="reminder_1day">1 day</string>
+    <string name="reminder_3days">3 days</string>
+    <string name="reminder_1week">1 week</string>
+    <string name="reminder_2weeks">2 weeks</string>
+    <string name="cancel">Cancel</string>
     
     <!-- Species Dropdown -->
     <string name="species_label">Pet Species</string>

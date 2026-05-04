@@ -39,6 +39,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class PetDetailActivity extends AppCompatActivity implements CareTaskAdapter.OnTaskActionListener {
 
@@ -47,6 +49,8 @@ public class PetDetailActivity extends AppCompatActivity implements CareTaskAdap
     private ImageView petPhotoView;
     private TextView petNameView, petDescriptionView, petPhoneView, tvEmptyCareLog;
     private MaterialButton btnCall, btnStatusToggle, btnAddTask;
+    private MaterialButton btnExportShare, btnSetReminder;
+    private TextView tvStatusHistory;
     private PetViewModel petViewModel;
     private RecyclerView rvCareTasks;
     private CareTaskAdapter careTaskAdapter;
@@ -81,6 +85,9 @@ public class PetDetailActivity extends AppCompatActivity implements CareTaskAdap
         btnCall = findViewById(R.id.btn_call_pet);
         btnStatusToggle = findViewById(R.id.btn_status_toggle);
         btnAddTask = findViewById(R.id.btn_add_task);
+        btnExportShare = findViewById(R.id.btn_export_share);
+        btnSetReminder = findViewById(R.id.btn_set_reminder);
+        tvStatusHistory = findViewById(R.id.tv_status_history);
         rvCareTasks = findViewById(R.id.rv_care_tasks);
         tvEmptyCareLog = findViewById(R.id.tv_empty_care_log);
 
@@ -116,6 +123,8 @@ public class PetDetailActivity extends AppCompatActivity implements CareTaskAdap
         btnCall.setOnClickListener(v -> makeCall());
         btnStatusToggle.setOnClickListener(v -> toggleStatus());
         btnAddTask.setOnClickListener(v -> showAddTaskDialog());
+        btnExportShare.setOnClickListener(v -> exportAndShare());
+        btnSetReminder.setOnClickListener(v -> showReminderDialog());
     }
 
     private void checkNotificationPermission() {
@@ -140,6 +149,8 @@ public class PetDetailActivity extends AppCompatActivity implements CareTaskAdap
         btnStatusToggle.setText(getDisplayStatus(pet.getStatus()));
         PetImageUtils.loadPhoto(pet.getPhotoPath(), petPhotoView);
         
+        updateStatusHistory(pet);
+        
         // Apply status-based coloring to status button
         if (isAdoptedStatus(pet.getStatus())) {
             btnStatusToggle.setBackgroundColor(ContextCompat.getColor(this, R.color.status_adopted));
@@ -148,6 +159,85 @@ public class PetDetailActivity extends AppCompatActivity implements CareTaskAdap
             btnStatusToggle.setBackgroundColor(ContextCompat.getColor(this, R.color.status_searching));
             btnStatusToggle.setTextColor(ContextCompat.getColor(this, android.R.color.white));
         }
+    }
+
+    private void toggleStatus() {
+        if (currentPet == null) return;
+
+        List<String> statuses = Arrays.asList(
+                getString(R.string.cute_status_owner),
+                getString(R.string.cute_status_adoptable)
+        );
+        int currentIndex = statuses.indexOf(getDisplayStatus(currentPet.getStatus()));
+        int nextIndex = (currentIndex + 1) % statuses.size();
+
+        currentPet.setStatus(statuses.get(nextIndex));
+        currentPet.setStatusUpdatedAt(System.currentTimeMillis());
+        petViewModel.update(currentPet);
+        btnStatusToggle.setText(getDisplayStatus(currentPet.getStatus()));
+        updateStatusHistory(currentPet);
+        Toast.makeText(this, "Status updated to: " + getDisplayStatus(currentPet.getStatus()), Toast.LENGTH_SHORT).show();
+    }
+
+    private void updateStatusHistory(Pet pet) {
+        if (tvStatusHistory == null) return;
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault());
+        String statusUpdatedStr = sdf.format(new Date(pet.getStatusUpdatedAt()));
+        String foundStr = sdf.format(new Date(pet.getTimestamp()));
+        String historyText = "Found: " + foundStr + "\nStatus: " + getDisplayStatus(pet.getStatus()) + " (" + statusUpdatedStr + ")";
+        tvStatusHistory.setText(historyText);
+    }
+
+    private void exportAndShare() {
+        if (currentPet == null) return;
+
+        StringBuilder exportText = new StringBuilder();
+        exportText.append("=== ").append(currentPet.getName()).append(" ===\n\n");
+        exportText.append("Species: ").append(currentPet.getSpecies()).append("\n");
+        if (currentPet.getGender() != null && !currentPet.getGender().isEmpty()) {
+            exportText.append("Gender: ").append(currentPet.getGender()).append("\n");
+        }
+        if (currentPet.getAge() != null && !currentPet.getAge().isEmpty()) {
+            exportText.append("Age: ").append(currentPet.getAge()).append("\n");
+        }
+        if (currentPet.getHealthStatus() != null && !currentPet.getHealthStatus().isEmpty()) {
+            exportText.append("Health: ").append(currentPet.getHealthStatus()).append("\n");
+        }
+        exportText.append("\nDescription:\n").append(currentPet.getDescription()).append("\n");
+        exportText.append("\nStatus: ").append(getDisplayStatus(currentPet.getStatus())).append("\n");
+        exportText.append("Contact: ").append(currentPet.getContactNumber()).append("\n");
+        if (currentPet.getLatitude() != 0 || currentPet.getLongitude() != 0) {
+            exportText.append("Location: ").append(String.format("%.4f, %.4f", currentPet.getLatitude(), currentPet.getLongitude())).append("\n");
+        }
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Rescue Record: " + currentPet.getName());
+        shareIntent.putExtra(Intent.EXTRA_TEXT, exportText.toString());
+        startActivity(Intent.createChooser(shareIntent, "Share Rescue Details"));
+    }
+
+    private void showReminderDialog() {
+        if (currentPet == null) return;
+
+        String[] reminderOptions = {
+                getString(R.string.reminder_1day),
+                getString(R.string.reminder_3days),
+                getString(R.string.reminder_1week),
+                getString(R.string.reminder_2weeks)
+        };
+        int[] daysOffsets = {1, 3, 7, 14};
+
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.set_follow_up_reminder))
+                .setItems(reminderOptions, (dialog, which) -> {
+                    long reminderTime = System.currentTimeMillis() + (daysOffsets[which] * 24 * 60 * 60 * 1000L);
+                    currentPet.setNextReminderDate(reminderTime);
+                    petViewModel.update(currentPet);
+                    Toast.makeText(this, "Reminder set for " + reminderOptions[which], Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton(getString(R.string.cancel), null)
+                .show();
     }
 
     private boolean isAdoptedStatus(String status) {
@@ -165,22 +255,6 @@ public class PetDetailActivity extends AppCompatActivity implements CareTaskAdap
         } else {
             Toast.makeText(this, "No contact number available", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void toggleStatus() {
-        if (currentPet == null) return;
-
-        List<String> statuses = Arrays.asList(
-                getString(R.string.cute_status_owner),
-                getString(R.string.cute_status_adoptable)
-        );
-        int currentIndex = statuses.indexOf(getDisplayStatus(currentPet.getStatus()));
-        int nextIndex = (currentIndex + 1) % statuses.size();
-
-        currentPet.setStatus(statuses.get(nextIndex));
-        petViewModel.update(currentPet);
-        btnStatusToggle.setText(getDisplayStatus(currentPet.getStatus()));
-        Toast.makeText(this, "Status updated to: " + getDisplayStatus(currentPet.getStatus()), Toast.LENGTH_SHORT).show();
     }
 
     private String getDisplayStatus(String status) {

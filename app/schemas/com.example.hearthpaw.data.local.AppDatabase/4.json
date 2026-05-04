@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 3,
-    "identityHash": "c54a1a5de3e043be66d79f9801b80c27",
+    "version": 4,
+    "identityHash": "5927b766ad56a50b2032d85eabeb7c75",
     "entities": [
       {
         "tableName": "pets",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `description` TEXT, `photoPath` TEXT, `status` TEXT, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `contactNumber` TEXT, `timestamp` INTEGER NOT NULL, `species` TEXT, `gender` TEXT, `age` TEXT, `healthStatus` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `description` TEXT, `photoPath` TEXT, `status` TEXT, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `contactNumber` TEXT, `timestamp` INTEGER NOT NULL, `species` TEXT, `gender` TEXT, `age` TEXT, `healthStatus` TEXT, `statusUpdatedAt` INTEGER NOT NULL, `nextReminderDate` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -85,6 +85,18 @@
             "columnName": "healthStatus",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "statusUpdatedAt",
+            "columnName": "statusUpdatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nextReminderDate",
+            "columnName": "nextReminderDate",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -166,7 +178,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c54a1a5de3e043be66d79f9801b80c27')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5927b766ad56a50b2032d85eabeb7c75')"
     ]
   }
 }

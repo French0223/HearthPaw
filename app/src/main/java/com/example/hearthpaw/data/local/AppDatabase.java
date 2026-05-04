@@ -14,7 +14,7 @@ import com.example.hearthpaw.data.model.Pet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Pet.class, CareTask.class}, version = 3, exportSchema = true)
+@Database(entities = {Pet.class, CareTask.class}, version = 4, exportSchema = true)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract PetDao petDao();
@@ -43,13 +43,21 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
+    static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE pets ADD COLUMN statusUpdatedAt INTEGER NOT NULL DEFAULT 0");
+            database.execSQL("ALTER TABLE pets ADD COLUMN nextReminderDate INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
     public static AppDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, "hearthpaw_database")
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                             .build();
                 }
             }
