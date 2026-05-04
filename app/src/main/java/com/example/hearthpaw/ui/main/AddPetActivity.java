@@ -3,6 +3,7 @@ package com.example.hearthpaw.ui.main;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,12 +28,14 @@ import com.example.hearthpaw.data.model.Pet;
 import com.example.hearthpaw.ui.viewmodel.PetViewModel;
 import com.example.hearthpaw.util.PetImageUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.Priority;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.gms.tasks.CancellationTokenSource;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,6 +44,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class AddPetActivity extends AppCompatActivity {
 
@@ -68,6 +72,7 @@ public class AddPetActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private double currentLat = 0.0;
     private double currentLng = 0.0;
+    private boolean hasLocation = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,8 +111,18 @@ public class AddPetActivity extends AppCompatActivity {
             pickImageLauncher.launch("image/*");
             return true;
         });
-        btnUpdateLocation.setOnClickListener(v -> getLastKnownLocation());
-        btnSave.setOnClickListener(v -> requestLocationAndSave());
+        btnUpdateLocation.setOnClickListener(v -> requestFreshLocation(true, null));
+        btnSave.setOnClickListener(v -> {
+            if (!validateForm()) {
+                return;
+            }
+            requestLocationAndSave();
+        });
+
+        if (btnUpdateLocation != null) {
+            btnUpdateLocation.setText(R.string.location_button_get_current);
+        }
+        setLocationUnavailableState();
         
         // Request location permission early
         requestLocationPermission();
@@ -271,7 +286,9 @@ public class AddPetActivity extends AppCompatActivity {
                     Boolean fineLocationGranted = result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false);
                     Boolean coarseLocationGranted = result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false);
                     if (fineLocationGranted || coarseLocationGranted) {
-                        getLastKnownLocation();
+                        requestFreshLocation(false, null);
+                    } else if (!hasLocation) {
+                        setLocationUnavailableState();
                     }
                 }
         );
@@ -288,30 +305,135 @@ public class AddPetActivity extends AppCompatActivity {
         }
     }
 
-    private void getLastKnownLocation() {
+    private boolean hasLocationPermission() {
+        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void setLocatingState() {
+        if (tvMapCoordinates != null) {
+            tvMapCoordinates.setText(R.string.location_state_locating);
+        }
+        if (btnUpdateLocation != null) {
+            btnUpdateLocation.setEnabled(false);
+            btnUpdateLocation.setText(R.string.location_button_locating);
+        }
+    }
+
+    private void setLocationUnavailableState() {
+        if (tvMapCoordinates != null) {
+            tvMapCoordinates.setText(R.string.location_state_unavailable);
+        }
+        if (btnUpdateLocation != null) {
+            btnUpdateLocation.setEnabled(true);
+            btnUpdateLocation.setText(R.string.location_button_get_current);
+        }
+    }
+
+    private void applyLocation(Location location) {
+        currentLat = location.getLatitude();
+        currentLng = location.getLongitude();
+        hasLocation = true;
+        updateCoordinatesDisplay();
+        if (btnUpdateLocation != null) {
+            btnUpdateLocation.setEnabled(true);
+            btnUpdateLocation.setText(R.string.location_button_get_current);
+        }
+    }
+
+    private void requestFreshLocation(boolean showUserFeedback, Runnable onComplete) {
         try {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (!hasLocationPermission()) {
+                if (showUserFeedback) {
+                    requestLocationPermission();
+                } else if (!hasLocation) {
+                    setLocationUnavailableState();
+                }
+                if (onComplete != null) {
+                    onComplete.run();
+                }
                 return;
             }
-            fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
-                if (location != null) {
-                    currentLat = location.getLatitude();
-                    currentLng = location.getLongitude();
-                    updateCoordinatesDisplay();
-                    Toast.makeText(this, "Location updated", Toast.LENGTH_SHORT).show();
-                }
-            });
+
+            setLocatingState();
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            fusedLocationClient
+                    .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cancellationTokenSource.getToken())
+                    .addOnSuccessListener(this, location -> {
+                        if (location != null) {
+                            applyLocation(location);
+                            if (showUserFeedback) {
+                                Toast.makeText(this, getString(R.string.location_updated), Toast.LENGTH_SHORT).show();
+                            }
+                            if (onComplete != null) {
+                                onComplete.run();
+                            }
+                        } else {
+                            fallbackToLastKnownLocation(showUserFeedback, onComplete);
+                        }
+                    })
+                    .addOnFailureListener(this, e -> fallbackToLastKnownLocation(showUserFeedback, onComplete));
         } catch (Exception e) {
-            Toast.makeText(this, "Error getting location", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
+            fallbackToLastKnownLocation(showUserFeedback, onComplete);
+        }
+    }
+
+    private void fallbackToLastKnownLocation(boolean showUserFeedback, Runnable onComplete) {
+        try {
+            if (!hasLocationPermission()) {
+                if (!hasLocation) {
+                    setLocationUnavailableState();
+                }
+                if (onComplete != null) {
+                    onComplete.run();
+                }
+                return;
+            }
+
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, location -> {
+                        if (location != null) {
+                            applyLocation(location);
+                            if (showUserFeedback) {
+                                Toast.makeText(this, getString(R.string.location_updated), Toast.LENGTH_SHORT).show();
+                            }
+                        } else if (!hasLocation) {
+                            setLocationUnavailableState();
+                            if (showUserFeedback) {
+                                Toast.makeText(this, getString(R.string.location_unavailable_toast), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        if (onComplete != null) {
+                            onComplete.run();
+                        }
+                    })
+                    .addOnFailureListener(this, e -> {
+                        if (!hasLocation) {
+                            setLocationUnavailableState();
+                            if (showUserFeedback) {
+                                Toast.makeText(this, getString(R.string.location_unavailable_toast), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        if (onComplete != null) {
+                            onComplete.run();
+                        }
+                    });
+        } catch (Exception e) {
+            if (!hasLocation) {
+                setLocationUnavailableState();
+            }
+            if (onComplete != null) {
+                onComplete.run();
+            }
         }
     }
 
     private void updateCoordinatesDisplay() {
         try {
             if (tvMapCoordinates != null) {
-                String coordinates = String.format("Lat: %.4f, Lng: %.4f", currentLat, currentLng);
+                String coordinates = String.format(Locale.US, "Lat: %.4f, Lng: %.4f", currentLat, currentLng);
                 tvMapCoordinates.setText(coordinates);
             }
         } catch (Exception e) {
@@ -320,21 +442,7 @@ public class AddPetActivity extends AppCompatActivity {
     }
 
     private void requestLocationAndSave() {
-        try {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
-                    if (location != null) {
-                        currentLat = location.getLatitude();
-                        currentLng = location.getLongitude();
-                    }
-                    savePet();
-                }).addOnFailureListener(e -> savePet());
-            } else {
-                savePet();
-            }
-        } catch (Exception e) {
-            savePet();
-        }
+        requestFreshLocation(false, () -> savePet(!hasLocation));
     }
 
     private void capturePhoto() {
@@ -383,12 +491,8 @@ public class AddPetActivity extends AppCompatActivity {
         }
     }
 
-    private void savePet() {
+    private void savePet(boolean savedWithoutLocation) {
         try {
-            if (!validateForm()) {
-                return;
-            }
-
             String name = etName.getText().toString().trim();
             String description = etDescription.getText().toString().trim();
             String phone = etPhone.getText().toString().trim();
@@ -409,7 +513,11 @@ public class AddPetActivity extends AppCompatActivity {
             newPet.setHealthStatus(selectedHealth);
 
             petViewModel.insert(newPet);
-            Toast.makeText(this, "Pet registered successfully!", Toast.LENGTH_SHORT).show();
+            if (savedWithoutLocation) {
+                Toast.makeText(this, getString(R.string.location_saved_without), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, getString(R.string.pet_registered_success), Toast.LENGTH_SHORT).show();
+            }
             finish();
         } catch (Exception e) {
             Toast.makeText(this, "Error saving pet", Toast.LENGTH_SHORT).show();

@@ -16,6 +16,14 @@
     <string name="error_phone_invalid">Enter a valid contact number</string>
     <string name="error_species_required">Please select a species</string>
     <string name="error_chip_required">Please choose at least one of gender, age, or health status</string>
+    <string name="pet_registered_success">Pet registered successfully!</string>
+    <string name="location_button_get_current">Get Current Location</string>
+    <string name="location_button_locating">Locating…</string>
+    <string name="location_state_locating">Locating…</string>
+    <string name="location_state_unavailable">Location unavailable</string>
+    <string name="location_updated">Location updated</string>
+    <string name="location_unavailable_toast">Location unavailable</string>
+    <string name="location_saved_without">Saved without location</string>
     
     <!-- Species Dropdown -->
     <string name="species_label">Pet Species</string>
@@ -45,7 +53,7 @@
     
     <!-- Map Preview -->
     <string name="map_preview_label">Rescue Location</string>
-    <string name="map_preview_hint">Tap to set location on map</string>
+    <string name="map_preview_hint">Tap Get Current Location to capture coordinates</string>
     
     <string name="detail_title">Pet Details</string>
     <string name="detail_call_button">Call Guardian</string>

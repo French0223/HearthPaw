@@ -306,7 +306,7 @@
                         android:id="@+id/btn_update_location"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Get Current Location"
+                        android:text="@string/location_button_get_current"
                         style="@style/Widget.Material3.Button.OutlinedButton" />
 
                 </LinearLayout>
