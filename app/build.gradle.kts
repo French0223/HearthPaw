@@ -2,6 +2,16 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+// Load local.properties to get the Maps API Key
+val localPropertiesFile = file("${rootDir}/local.properties")
+val mapsApiKey: String = if (localPropertiesFile.exists()) {
+    val content = localPropertiesFile.readText()
+    val match = Regex("""mapApiKey\s*=\s*(.+)""").find(content)
+    match?.groupValues?.get(1)?.trim() ?: ""
+} else {
+    ""
+}
+
 android {
     namespace = "com.example.hearthpaw"
     compileSdk = 35
@@ -14,6 +24,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Add manifest placeholders for the API key
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
 
         javaCompileOptions {
             annotationProcessorOptions {

@@ -377,6 +377,7 @@ public class AddPetActivity extends AppCompatActivity {
         }).start();
     }
 
+    @android.annotation.SuppressLint("MissingPermission")
     private void requestFreshLocation(boolean showUserFeedback, Runnable onComplete) {
         try {
             if (!hasLocationPermission()) {
@@ -414,6 +415,7 @@ public class AddPetActivity extends AppCompatActivity {
         }
     }
 
+    @android.annotation.SuppressLint("MissingPermission")
     private void fallbackToLastKnownLocation(boolean showUserFeedback, Runnable onComplete) {
         try {
             if (!hasLocationPermission()) {
