@@ -3,7 +3,9 @@ package com.example.hearthpaw;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +36,7 @@ import com.example.hearthpaw.ui.detail.PetDetailActivity;
 import com.example.hearthpaw.ui.viewmodel.PetViewModel;
 import com.example.hearthpaw.util.BitmapUtils;
 import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
@@ -49,6 +52,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
@@ -142,6 +146,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mapFragment.getMapAsync(this);
         }
 
+        // Initialize Custom Map Controls
+        View btnZoomIn = findViewById(R.id.btn_zoom_in);
+        View btnZoomOut = findViewById(R.id.btn_zoom_out);
+        View btnMyLocation = findViewById(R.id.btn_my_location);
+
+        if (btnZoomIn != null) {
+            btnZoomIn.setOnClickListener(v -> {
+                if (googleMap != null) googleMap.animateCamera(CameraUpdateFactory.zoomIn());
+            });
+        }
+        if (btnZoomOut != null) {
+            btnZoomOut.setOnClickListener(v -> {
+                if (googleMap != null) googleMap.animateCamera(CameraUpdateFactory.zoomOut());
+            });
+        }
+        if (btnMyLocation != null) {
+            btnMyLocation.setOnClickListener(v -> centerMapOnMyLocation());
+        }
+
         // Initialize ViewModel
         petViewModel = new ViewModelProvider(this).get(PetViewModel.class);
 
@@ -163,23 +186,45 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        // Sync the navigation drawer state when returning to the activity
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        if (navigationView != null) {
+            navigationView.setCheckedItem(isMapView ? R.id.nav_map : R.id.nav_home);
+        }
+    }
+
+    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
+
+        boolean isHandled = false;
 
         if (id == R.id.nav_home) {
             isMapView = false;
             filterPets(currentSearchQuery);
+            isHandled = true;
         } else if (id == R.id.nav_bantay) {
             startActivity(new Intent(MainActivity.this, ChatActivity.class));
+            // Immediately restore the checked item back to the current view (Home or Map)
+            // so the drawer doesn't stay highlighted on BantAI after returning.
+            NavigationView navView = findViewById(R.id.nav_view);
+            if (navView != null) {
+                navView.setCheckedItem(isMapView ? R.id.nav_map : R.id.nav_home);
+            }
+            // Don't mark as handled so the activity state remains unchanged
         } else if (id == R.id.nav_map) {
             isMapView = true;
             filterPets(currentSearchQuery);
+            isHandled = true;
         } else if (id == R.id.nav_about) {
-            Toast.makeText(this, "HearthPaw v1.0 - Little paws, big love", Toast.LENGTH_SHORT).show();
+            showAboutDialog();
+            // Dialog doesn't change activity state
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
+        return isHandled;
     }
 
     @Override
@@ -280,6 +325,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         this.googleMap = googleMap;
+        googleMap.getUiSettings().setZoomControlsEnabled(false);
+        googleMap.getUiSettings().setMyLocationButtonEnabled(false);
         checkLocationSettings();
         
         googleMap.setOnInfoWindowClickListener(marker -> {
@@ -332,6 +379,45 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Manifest.permission.ACCESS_COARSE_LOCATION
             });
         }
+    }
+
+    private void centerMapOnMyLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            locationPermissionRequest.launch(new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            });
+            return;
+        }
+
+        if (googleMap == null) return;
+
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+            if (location != null) {
+                LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
+            } else {
+                Toast.makeText(this, "Unable to get current location", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showAboutDialog() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_about, null);
+        
+        TextView tvHotline = dialogView.findViewById(R.id.tv_hotline_dialog);
+        tvHotline.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:911"));
+            startActivity(intent);
+        });
+
+        new MaterialAlertDialogBuilder(this)
+                .setView(dialogView)
+                .setPositiveButton("Close", null)
+                .show();
     }
 
     private void updateMapMarkers(List<Pet> pets) {

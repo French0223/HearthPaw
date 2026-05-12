@@ -87,6 +87,12 @@
     <string name="menu_about">About HearthPaw</string>
     <string name="menu_about_title">About</string>
 
+    <string name="about_description">HearthPaw is a project born out of our love as furparents ourselves. We chose to develop this because a project like this is very unique and has never been developed around Gensan. We love to rescue cats, dogs, or other domestic animals and help them find their loving families.</string>
+    <string name="about_hotline_label">Emergency Hotline (Gensan):</string>
+    <string name="about_hotline_number">911 / (083) 552-3939</string>
+    <string name="about_version">Version 1.0.0</string>
+    <string name="about_tap_to_call">Tap the number to call</string>
+
     <string name="bantay_title">BantAI</string>
     <string name="bantay_subtitle">Your AI rescue companion for quick help, care tips, and app guidance.</string>
     <string name="bantay_message_hint">Ask BantAI anything about rescues, care, or HearthPaw</string>
@@ -101,4 +107,6 @@
     <string name="bantay_prompt_supplies">What supplies does this pet need?</string>
     <string name="bantay_no_pet">(No pet selected)</string>
     <string name="bantay_pet_context_unavailable">Pet context is temporarily unavailable.</string>
+    <string name="zoom_in">+</string>
+    <string name="zoom_out">−</string>
 </resources>
