@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.hearthpaw.data.model.Pet;
+import com.example.hearthpaw.ui.ai.ChatActivity;
 import com.example.hearthpaw.ui.main.AddPetActivity;
 import com.example.hearthpaw.ui.adapter.PetAdapter;
 import com.example.hearthpaw.ui.detail.PetDetailActivity;
@@ -168,6 +169,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (id == R.id.nav_home) {
             isMapView = false;
             filterPets(currentSearchQuery);
+        } else if (id == R.id.nav_bantay) {
+            startActivity(new Intent(MainActivity.this, ChatActivity.class));
         } else if (id == R.id.nav_map) {
             isMapView = true;
             filterPets(currentSearchQuery);

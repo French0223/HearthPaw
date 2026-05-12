@@ -136,6 +136,48 @@
                 app:icon="@android:drawable/ic_menu_call"
                 app:iconGravity="textStart" />
 
+            <!-- Status History -->
+            <TextView
+                android:id="@+id/tv_status_history"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:padding="12dp"
+                android:background="@color/hearthpaw_card_soft"
+                android:textColor="@color/hearthpaw_on_primary_container"
+                android:textSize="12sp"
+                android:fontFamily="monospace"
+                tools:text="Found: Jan 01, 2026 10:30\nStatus: Searching for Owner (Jan 02, 2026 14:15)" />
+
+            <!-- Workflow Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:spacing="8dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_export_share"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/export_share"
+                    app:icon="@android:drawable/ic_menu_share"
+                    app:iconGravity="textStart" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_set_reminder"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/set_reminder"
+                    app:icon="@android:drawable/ic_menu_agenda"
+                    app:iconGravity="textStart" />
+            </LinearLayout>
+
             <!-- Care Log Section -->
             <View
                 android:layout_width="match_parent"

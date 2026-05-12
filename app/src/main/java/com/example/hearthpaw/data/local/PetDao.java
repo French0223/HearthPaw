@@ -25,6 +25,9 @@ public interface PetDao {
     @Query("SELECT * FROM pets ORDER BY timestamp DESC")
     LiveData<List<Pet>> getAllPets();
 
+    @Query("SELECT * FROM pets ORDER BY timestamp DESC")
+    List<Pet> getAllPetsNow();
+
     @Query("SELECT * FROM pets WHERE id = :id")
     LiveData<Pet> getPetById(int id);
 }

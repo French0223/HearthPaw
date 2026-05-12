@@ -2,9 +2,38 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+// Load local.properties to get the Maps API Key
+val localPropertiesFile = file("${rootDir}/local.properties")
+val mapsApiKey: String = if (localPropertiesFile.exists()) {
+    val content = localPropertiesFile.readText()
+    val match = Regex("""mapApiKey\s*=\s*(.+)""").find(content)
+    match?.groupValues?.get(1)?.trim() ?: ""
+} else {
+    ""
+}
+
+val geminiApiKey: String = if (localPropertiesFile.exists()) {
+    val content = localPropertiesFile.readText()
+    val match = Regex("""geminiApiKey\s*=\s*(.+)""").find(content)
+    match?.groupValues?.get(1)?.trim() ?: ""
+} else {
+    ""
+}
+
 android {
     namespace = "com.example.hearthpaw"
     compileSdk = 35
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    packaging {
+        resources {
+            excludes += "META-INF/INDEX.LIST"
+            excludes += "META-INF/DEPENDENCIES"
+        }
+    }
 
     defaultConfig {
         applicationId = "com.example.hearthpaw"
@@ -14,6 +43,19 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Add manifest placeholders for the API key
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
+        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += mapOf(
+                    "room.schemaLocation" to "$projectDir/schemas",
+                    "room.incremental" to "true"
+                )
+            }
+        }
     }
 
     buildTypes {
@@ -49,6 +91,9 @@ dependencies {
     // Google Maps & Location
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
+
+    // Google AI SDK
+    implementation(libs.google.genai)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

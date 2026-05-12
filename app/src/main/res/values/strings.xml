@@ -10,6 +10,62 @@
     <string name="add_pet_phone_hint">Rescuer Contact Number</string>
     <string name="capture_photo">Capture Photo</string>
     <string name="register_rescue">Register Rescue</string>
+    <string name="error_name_required">Pet name is required</string>
+    <string name="error_description_required">Description is required</string>
+    <string name="error_phone_required">Contact number is required</string>
+    <string name="error_phone_invalid">Enter a valid contact number</string>
+    <string name="error_species_required">Please select a species</string>
+    <string name="error_chip_required">Please choose at least one of gender, age, or health status</string>
+    <string name="pet_registered_success">Pet registered successfully!</string>
+    <string name="location_button_get_current">Get Current Location</string>
+    <string name="location_button_locating">Locating…</string>
+    <string name="location_state_locating">Locating…</string>
+    <string name="location_state_unavailable">Location unavailable</string>
+    <string name="location_updated">Location updated</string>
+    <string name="location_place_name">Place: %1$s</string>
+    <string name="location_unavailable_toast">Location unavailable</string>
+    <string name="location_saved_without">Saved without location</string>
+
+    <!-- Workflow Features -->
+    <string name="export_share">Export &amp; Share</string>
+    <string name="set_reminder">Set Reminder</string>
+    <string name="set_follow_up_reminder">Set Follow-up Reminder</string>
+    <string name="reminder_1day">1 day</string>
+    <string name="reminder_3days">3 days</string>
+    <string name="reminder_1week">1 week</string>
+    <string name="reminder_2weeks">2 weeks</string>
+    <string name="cancel">Cancel</string>
+    
+    <!-- Species Dropdown -->
+    <string name="species_label">Pet Species</string>
+    <string name="species_dog">Dog</string>
+    <string name="species_cat">Cat</string>
+    <string name="species_rabbit">Rabbit</string>
+    <string name="species_bird">Bird</string>
+    <string name="species_other">Other</string>
+    
+    <!-- Gender Chips -->
+    <string name="gender_label">Gender</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="gender_unknown">Unknown</string>
+    
+    <!-- Age Chips -->
+    <string name="age_label">Age Group</string>
+    <string name="age_puppy">Puppy/Kitten</string>
+    <string name="age_adult">Adult</string>
+    <string name="age_senior">Senior</string>
+    
+    <!-- Health Status Chips -->
+    <string name="health_label">Health Status</string>
+    <string name="health_healthy">Healthy</string>
+    <string name="health_injured">Injured</string>
+    <string name="health_sick">Sick</string>
+    
+    <!-- Map Preview -->
+    <string name="map_preview_label">Rescue Location</string>
+    <string name="map_preview_hint">Tap Get Current Location to capture coordinates</string>
+    
     <string name="detail_title">Pet Details</string>
     <string name="detail_call_button">Call Guardian</string>
     <string name="detail_description_label">Description</string>
@@ -26,7 +82,23 @@
     <string name="task_time_hint">Time (e.g., 8:00 AM)</string>
 
     <string name="menu_home">Home</string>
+    <string name="menu_bantay">BantAI</string>
     <string name="menu_map">Rescue Map</string>
     <string name="menu_about">About HearthPaw</string>
     <string name="menu_about_title">About</string>
+
+    <string name="bantay_title">BantAI</string>
+    <string name="bantay_subtitle">Your AI rescue companion for quick help, care tips, and app guidance.</string>
+    <string name="bantay_message_hint">Ask BantAI anything about rescues, care, or HearthPaw</string>
+    <string name="bantay_send">Send</string>
+    <string name="bantay_you_label">You</string>
+    <string name="bantay_bantay_label">BantAI</string>
+    <string name="bantay_missing_key">Add geminiApiKey to local.properties to enable BantAI.</string>
+    <string name="bantay_new_chat">New Chat</string>
+    <string name="bantay_new_chat_cleared">Chat history cleared</string>
+    <string name="bantay_prompt_care">How should I care for a wounded paw?</string>
+    <string name="bantay_prompt_adopt">How can I list this pet for adoption?</string>
+    <string name="bantay_prompt_supplies">What supplies does this pet need?</string>
+    <string name="bantay_no_pet">(No pet selected)</string>
+    <string name="bantay_pet_context_unavailable">Pet context is temporarily unavailable.</string>
 </resources>

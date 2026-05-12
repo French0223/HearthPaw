@@ -17,6 +17,12 @@ public class Pet {
     private double longitude;
     private String contactNumber;
     private long timestamp;
+    private String species; 
+    private String gender; 
+    private String age; 
+    private String healthStatus;
+    private long statusUpdatedAt;
+    private long nextReminderDate;
 
     // Constructor
     public Pet(String name, String description, String photoPath, String status, 
@@ -29,6 +35,8 @@ public class Pet {
         this.longitude = longitude;
         this.contactNumber = contactNumber;
         this.timestamp = System.currentTimeMillis();
+        this.statusUpdatedAt = System.currentTimeMillis();
+        this.nextReminderDate = 0;
     }
 
     // Getters and Setters
@@ -58,4 +66,22 @@ public class Pet {
 
     public long getTimestamp() { return timestamp; }
     public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
+
+    public String getSpecies() { return species; }
+    public void setSpecies(String species) { this.species = species; }
+
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
+
+    public String getAge() { return age; }
+    public void setAge(String age) { this.age = age; }
+
+    public String getHealthStatus() { return healthStatus; }
+    public void setHealthStatus(String healthStatus) { this.healthStatus = healthStatus; }
+
+    public long getStatusUpdatedAt() { return statusUpdatedAt; }
+    public void setStatusUpdatedAt(long statusUpdatedAt) { this.statusUpdatedAt = statusUpdatedAt; }
+
+    public long getNextReminderDate() { return nextReminderDate; }
+    public void setNextReminderDate(long nextReminderDate) { this.nextReminderDate = nextReminderDate; }
 }
