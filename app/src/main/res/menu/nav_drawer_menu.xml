@@ -6,6 +6,10 @@
             android:icon="@drawable/ic_paw"
             android:title="@string/menu_home" />
         <item
+            android:id="@+id/nav_bantay"
+            android:icon="@android:drawable/ic_menu_send"
+            android:title="@string/menu_bantay" />
+        <item
             android:id="@+id/nav_map"
             android:icon="@android:drawable/ic_menu_directions"
             android:title="@string/menu_map" />

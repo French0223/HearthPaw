@@ -26,6 +26,10 @@ public class PetRepository {
         return allPets;
     }
 
+    public List<Pet> getAllPetsNow() {
+        return petDao.getAllPetsNow();
+    }
+
     public LiveData<Pet> getPetById(int id) {
         return petDao.getPetById(id);
     }

@@ -82,7 +82,23 @@
     <string name="task_time_hint">Time (e.g., 8:00 AM)</string>
 
     <string name="menu_home">Home</string>
+    <string name="menu_bantay">BantAI</string>
     <string name="menu_map">Rescue Map</string>
     <string name="menu_about">About HearthPaw</string>
     <string name="menu_about_title">About</string>
+
+    <string name="bantay_title">BantAI</string>
+    <string name="bantay_subtitle">Your AI rescue companion for quick help, care tips, and app guidance.</string>
+    <string name="bantay_message_hint">Ask BantAI anything about rescues, care, or HearthPaw</string>
+    <string name="bantay_send">Send</string>
+    <string name="bantay_you_label">You</string>
+    <string name="bantay_bantay_label">BantAI</string>
+    <string name="bantay_missing_key">Add geminiApiKey to local.properties to enable BantAI.</string>
+    <string name="bantay_new_chat">New Chat</string>
+    <string name="bantay_new_chat_cleared">Chat history cleared</string>
+    <string name="bantay_prompt_care">How should I care for a wounded paw?</string>
+    <string name="bantay_prompt_adopt">How can I list this pet for adoption?</string>
+    <string name="bantay_prompt_supplies">What supplies does this pet need?</string>
+    <string name="bantay_no_pet">(No pet selected)</string>
+    <string name="bantay_pet_context_unavailable">Pet context is temporarily unavailable.</string>
 </resources>

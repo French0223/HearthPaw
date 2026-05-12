@@ -9,16 +9,18 @@ import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.example.hearthpaw.data.model.CareTask;
+import com.example.hearthpaw.data.model.ChatMessage;
 import com.example.hearthpaw.data.model.Pet;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Pet.class, CareTask.class}, version = 4, exportSchema = true)
+@Database(entities = {Pet.class, CareTask.class, ChatMessage.class}, version = 5, exportSchema = true)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract PetDao petDao();
     public abstract CareTaskDao careTaskDao();
+    public abstract ChatMessageDao chatMessageDao();
 
     private static volatile AppDatabase INSTANCE;
     private static final int NUMBER_OF_THREADS = 4;
@@ -51,13 +53,20 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
+    static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE IF NOT EXISTS `chat_messages` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `role` TEXT, `text` TEXT, `timestamp` INTEGER NOT NULL)");
+        }
+    };
+
     public static AppDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, "hearthpaw_database")
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                             .build();
                 }
             }

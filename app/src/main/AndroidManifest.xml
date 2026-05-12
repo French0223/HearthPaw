@@ -48,6 +48,11 @@
             android:label="Pet Details"
             android:parentActivityName=".MainActivity" />
 
+        <activity
+            android:name=".ui.ai.ChatActivity"
+            android:label="@string/menu_bantay"
+            android:parentActivityName=".MainActivity" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.hearthpaw.fileprovider"
