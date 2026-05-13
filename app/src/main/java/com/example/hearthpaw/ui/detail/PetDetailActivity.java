@@ -151,6 +151,9 @@ public class PetDetailActivity extends AppCompatActivity implements CareTaskAdap
         btnStatusToggle.setText(getDisplayStatus(pet.getStatus()));
         PetImageUtils.loadPhoto(pet.getPhotoPath(), petPhotoView);
         
+        // Make image clickable to view full screen
+        petPhotoView.setOnClickListener(v -> showFullScreenImage(pet.getPhotoPath()));
+        
         updateStatusHistory(pet);
         
         // Apply status-based coloring to status button
@@ -402,6 +405,25 @@ public class PetDetailActivity extends AppCompatActivity implements CareTaskAdap
                     }
                 })
                 .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void showFullScreenImage(String photoPath) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        
+        // Create a custom view with an ImageView for full screen display
+        ImageView imageView = new ImageView(this);
+        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        imageView.setLayoutParams(new androidx.appcompat.widget.LinearLayoutCompat.LayoutParams(
+                androidx.appcompat.widget.LinearLayoutCompat.LayoutParams.MATCH_PARENT,
+                androidx.appcompat.widget.LinearLayoutCompat.LayoutParams.MATCH_PARENT
+        ));
+        
+        // Load the photo into the image view
+        PetImageUtils.loadPhoto(photoPath, imageView);
+        
+        builder.setView(imageView)
+                .setNegativeButton("Close", (dialog, which) -> dialog.dismiss())
                 .show();
     }
 
