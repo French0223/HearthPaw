@@ -65,6 +65,8 @@
     <!-- Map Preview -->
     <string name="map_preview_label">Rescue Location</string>
     <string name="map_preview_hint">Tap Get Current Location to capture the detailed address</string>
+    <string name="map_type_satellite">Satellite View</string>
+    <string name="map_type_standard">Standard View</string>
     
     <string name="detail_title">Pet Details</string>
     <string name="detail_call_button">Call Guardian</string>

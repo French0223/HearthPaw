@@ -292,12 +292,29 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else {
             String lowerCaseQuery = query.toLowerCase().trim();
             filteredList = allPetsList.stream()
-                    .filter(pet -> (pet.getName() != null && pet.getName().toLowerCase().contains(lowerCaseQuery)) ||
-                                   (pet.getDescription() != null && pet.getDescription().toLowerCase().contains(lowerCaseQuery)) ||
-                                   (pet.getStatus() != null && pet.getStatus().toLowerCase().contains(lowerCaseQuery)))
+                    .filter(pet -> matchesQuery(pet, lowerCaseQuery))
                     .collect(Collectors.toList());
         }
         updateUI(filteredList);
+    }
+
+    private boolean matchesQuery(Pet pet, String query) {
+        if (pet == null || query == null || query.isEmpty()) {
+            return false;
+        }
+
+        return containsIgnoreCase(pet.getName(), query)
+                || containsIgnoreCase(pet.getDescription(), query)
+                || containsIgnoreCase(pet.getStatus(), query)
+                || containsIgnoreCase(pet.getSpecies(), query)
+                || containsIgnoreCase(pet.getGender(), query)
+                || containsIgnoreCase(pet.getAge(), query)
+                || containsIgnoreCase(pet.getHealthStatus(), query)
+                || containsIgnoreCase(pet.getContactNumber(), query);
+    }
+
+    private boolean containsIgnoreCase(String value, String query) {
+        return value != null && value.toLowerCase().contains(query);
     }
 
     private void updateUI(List<Pet> pets) {
@@ -447,6 +464,44 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (marker != null) marker.setTag(pet);
                 builder.include(position);
                 hasMarkers = true;
+            }
+        }
+
+        if (hasMarkers) {
+            focusMapOnPets(pets, builder);
+        }
+    }
+
+    private void focusMapOnPets(List<Pet> pets, LatLngBounds.Builder builder) {
+        if (googleMap == null || pets == null || pets.isEmpty()) {
+            return;
+        }
+
+        int matchCount = 0;
+        LatLng singlePosition = null;
+        for (Pet pet : pets) {
+            if (pet.getLatitude() != 0 || pet.getLongitude() != 0) {
+                matchCount++;
+                if (singlePosition == null) {
+                    singlePosition = new LatLng(pet.getLatitude(), pet.getLongitude());
+                }
+            }
+        }
+
+        if (matchCount == 0) {
+            return;
+        }
+
+        if (matchCount == 1 && singlePosition != null) {
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(singlePosition, 15));
+            return;
+        }
+
+        try {
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 120));
+        } catch (IllegalStateException ignored) {
+            if (singlePosition != null) {
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(singlePosition, 12));
             }
         }
     }
