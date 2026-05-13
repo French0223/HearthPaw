@@ -51,7 +51,8 @@
         <activity
             android:name=".ui.ai.ChatActivity"
             android:label="@string/menu_bantay"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="adjustResize" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

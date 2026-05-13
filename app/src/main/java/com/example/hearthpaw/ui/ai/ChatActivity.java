@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.example.hearthpaw.BuildConfig;
 import com.example.hearthpaw.R;
@@ -38,7 +41,21 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         setContentView(R.layout.activity_chat_bantay);
+
+        View chatRoot = findViewById(R.id.chat_root);
+        if (chatRoot != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(chatRoot, (view, insets) -> {
+                int bottomInset = Math.max(
+                        insets.getInsets(WindowInsetsCompat.Type.ime()).bottom,
+                        insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+                );
+                view.setPadding(view.getPaddingLeft(), view.getPaddingTop(), view.getPaddingRight(), bottomInset);
+                return insets;
+            });
+            ViewCompat.requestApplyInsets(chatRoot);
+        }
 
         Toolbar toolbar = findViewById(R.id.toolbar_chat);
         setSupportActionBar(toolbar);
