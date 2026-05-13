@@ -358,16 +358,7 @@ public class AddPetActivity extends AppCompatActivity {
                 java.util.List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
                 if (addresses != null && !addresses.isEmpty()) {
                     Address address = addresses.get(0);
-
-                    if (address.getLocality() != null && !address.getLocality().trim().isEmpty()) {
-                        currentPlaceName = address.getLocality().trim();
-                    } else if (address.getSubAdminArea() != null && !address.getSubAdminArea().trim().isEmpty()) {
-                        currentPlaceName = address.getSubAdminArea().trim();
-                    } else if (address.getAdminArea() != null && !address.getAdminArea().trim().isEmpty()) {
-                        currentPlaceName = address.getAdminArea().trim();
-                    } else if (address.getCountryName() != null && !address.getCountryName().trim().isEmpty()) {
-                        currentPlaceName = address.getCountryName().trim();
-                    }
+                    currentPlaceName = buildDetailedAddress(address);
                 }
             } catch (Exception ignored) {
                 currentPlaceName = "";
@@ -481,6 +472,57 @@ public class AddPetActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private String buildDetailedAddress(Address address) {
+        if (address == null) {
+            return "";
+        }
+
+        String addressLine = address.getAddressLine(0);
+        if (addressLine != null && !addressLine.trim().isEmpty()) {
+            return addressLine.trim();
+        }
+
+        StringBuilder detailedAddress = new StringBuilder();
+        appendAddressPart(detailedAddress, combineAddressPart(address.getSubThoroughfare(), address.getThoroughfare()));
+        appendAddressPart(detailedAddress, address.getSubLocality());
+        appendAddressPart(detailedAddress, address.getLocality());
+        appendAddressPart(detailedAddress, address.getSubAdminArea());
+        appendAddressPart(detailedAddress, address.getAdminArea());
+        appendAddressPart(detailedAddress, address.getPostalCode());
+        appendAddressPart(detailedAddress, address.getCountryName());
+
+        return detailedAddress.toString();
+    }
+
+    private String combineAddressPart(String primary, String secondary) {
+        String cleanedPrimary = primary != null ? primary.trim() : "";
+        String cleanedSecondary = secondary != null ? secondary.trim() : "";
+
+        if (cleanedPrimary.isEmpty()) {
+            return cleanedSecondary;
+        }
+        if (cleanedSecondary.isEmpty()) {
+            return cleanedPrimary;
+        }
+        return cleanedPrimary + " " + cleanedSecondary;
+    }
+
+    private void appendAddressPart(StringBuilder builder, String part) {
+        if (part == null) {
+            return;
+        }
+
+        String cleanedPart = part.trim();
+        if (cleanedPart.isEmpty()) {
+            return;
+        }
+
+        if (builder.length() > 0) {
+            builder.append(", ");
+        }
+        builder.append(cleanedPart);
     }
 
     private void requestLocationAndSave() {

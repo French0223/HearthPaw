@@ -3,6 +3,8 @@ package com.example.hearthpaw.ui.detail;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -184,8 +186,95 @@ public class PetDetailActivity extends AppCompatActivity implements CareTaskAdap
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault());
         String statusUpdatedStr = sdf.format(new Date(pet.getStatusUpdatedAt()));
         String foundStr = sdf.format(new Date(pet.getTimestamp()));
-        String historyText = "Found: " + foundStr + "\nStatus: " + getDisplayStatus(pet.getStatus()) + " (" + statusUpdatedStr + ")";
-        tvStatusHistory.setText(historyText);
+
+        String locationText = buildLocationText(pet);
+        if (locationText.isEmpty()) {
+            tvStatusHistory.setText("Found: " + foundStr + "\nStatus: " + getDisplayStatus(pet.getStatus()) + " (" + statusUpdatedStr + ")");
+            return;
+        }
+
+        tvStatusHistory.setText("Found: " + foundStr + "\nLocation: " + locationText + "\nStatus: " + getDisplayStatus(pet.getStatus()) + " (" + statusUpdatedStr + ")");
+    }
+
+    private String buildLocationText(Pet pet) {
+        if (pet == null) {
+            return "";
+        }
+
+        if (pet.getLatitude() == 0 && pet.getLongitude() == 0) {
+            return "";
+        }
+
+        if (!Geocoder.isPresent()) {
+            return String.format(Locale.US, "%.4f, %.4f", pet.getLatitude(), pet.getLongitude());
+        }
+
+        try {
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            List<Address> addresses = geocoder.getFromLocation(pet.getLatitude(), pet.getLongitude(), 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address address = addresses.get(0);
+                String detailedAddress = buildDetailedAddress(address);
+                if (!detailedAddress.isEmpty()) {
+                    return detailedAddress;
+                }
+            }
+        } catch (Exception ignored) {
+            // Fall back to coordinates below.
+        }
+
+        return String.format(Locale.US, "%.4f, %.4f", pet.getLatitude(), pet.getLongitude());
+    }
+
+    private String buildDetailedAddress(Address address) {
+        if (address == null) {
+            return "";
+        }
+
+        String addressLine = address.getAddressLine(0);
+        if (addressLine != null && !addressLine.trim().isEmpty()) {
+            return addressLine.trim();
+        }
+
+        StringBuilder detailedAddress = new StringBuilder();
+        appendAddressPart(detailedAddress, combineAddressPart(address.getSubThoroughfare(), address.getThoroughfare()));
+        appendAddressPart(detailedAddress, address.getSubLocality());
+        appendAddressPart(detailedAddress, address.getLocality());
+        appendAddressPart(detailedAddress, address.getSubAdminArea());
+        appendAddressPart(detailedAddress, address.getAdminArea());
+        appendAddressPart(detailedAddress, address.getPostalCode());
+        appendAddressPart(detailedAddress, address.getCountryName());
+
+        return detailedAddress.toString();
+    }
+
+    private String combineAddressPart(String primary, String secondary) {
+        String cleanedPrimary = primary != null ? primary.trim() : "";
+        String cleanedSecondary = secondary != null ? secondary.trim() : "";
+
+        if (cleanedPrimary.isEmpty()) {
+            return cleanedSecondary;
+        }
+        if (cleanedSecondary.isEmpty()) {
+            return cleanedPrimary;
+        }
+        return cleanedPrimary + " " + cleanedSecondary;
+    }
+
+    private void appendAddressPart(StringBuilder builder, String part) {
+        if (part == null) {
+            return;
+        }
+
+        String cleanedPart = part.trim();
+        if (cleanedPart.isEmpty()) {
+            return;
+        }
+
+        if (builder.length() > 0) {
+            builder.append(", ");
+        }
+        builder.append(cleanedPart);
     }
 
     private void exportAndShare() {
