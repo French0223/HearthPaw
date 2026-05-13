@@ -241,11 +241,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         
         int total = pets.size();
         long activeFound = pets.stream()
-                .filter(pet -> pet.getStatus() != null && pet.getStatus().equalsIgnoreCase("Found"))
+                .filter(this::isFoundAParentPet)
                 .count();
 
         tvTotalRescues.setText(String.valueOf(total));
         tvActiveFound.setText(String.valueOf(activeFound));
+    }
+
+    private boolean isFoundAParentPet(Pet pet) {
+        if (pet == null || pet.getStatus() == null) {
+            return false;
+        }
+
+        String normalizedStatus = pet.getStatus().trim().toLowerCase();
+        return normalizedStatus.contains("adopt")
+                || normalizedStatus.contains("found a parent")
+                || normalizedStatus.contains("found a home");
     }
 
     @Override
