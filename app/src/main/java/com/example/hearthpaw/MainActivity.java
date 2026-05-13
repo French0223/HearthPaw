@@ -150,6 +150,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         View btnZoomIn = findViewById(R.id.btn_zoom_in);
         View btnZoomOut = findViewById(R.id.btn_zoom_out);
         View btnMyLocation = findViewById(R.id.btn_my_location);
+        View btnMapType = findViewById(R.id.btn_map_type);
 
         if (btnZoomIn != null) {
             btnZoomIn.setOnClickListener(v -> {
@@ -163,6 +164,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         if (btnMyLocation != null) {
             btnMyLocation.setOnClickListener(v -> centerMapOnMyLocation());
+        }
+        if (btnMapType != null) {
+            btnMapType.setOnClickListener(v -> toggleMapType());
         }
 
         // Initialize ViewModel
